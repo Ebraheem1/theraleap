@@ -5,6 +5,10 @@
       :config="classifierConfigState.ThumbSpreadClassifier"
       @classifierSelectionUpdated="classifierSelectionUpdated"
     />
+    <thumb-index-classifier
+      :config="classifierConfigState.ThumbIndexClassifier"
+      @classifierSelectionUpdated="classifierSelectionUpdated"
+    />
   </section>
 </template>
 <script lang="ts">
@@ -15,6 +19,8 @@ import { Classifier, ClassifierRegistry } from "@/classify";
 
 import GraphicalHandLogger from "@/ui/graphics/GraphicalHandLogger.vue";
 import ThumbSpreadClassifier from "@/ui/classify/ThumbSpreadClassifier.vue";
+//This import to add the classifier view
+import ThumbIndexClassifier from "@/ui/classify/ThumbIndexClassifier.vue";
 import { HandTrackRecording } from "@/state/modules/record";
 import { createFakeDeviceStream, GenericHandTrackingData } from "@/devices";
 
@@ -28,7 +34,8 @@ import { getDeviceFacade } from "@/state/modules/device";
 
 @Component({
   components: {
-    ThumbSpreadClassifier
+    "thumb-spread-classifier": ThumbSpreadClassifier,
+    "thumb-index-classifier": ThumbIndexClassifier
   }
 })
 export default class Classifiers extends Vue {

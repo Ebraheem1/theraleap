@@ -4,6 +4,7 @@ import { getStoreAccessors } from "vuex-typescript";
 
 import { RootState } from "@/state/store";
 import { ThumbSpreadClassifierId } from "@/classify/classifiers/thumbspread";
+import { ThumbIndexClassifierId } from "@/classify/classifiers/thumbindex";
 
 export interface ClassifierState {
   classifiers: { [name: string]: any };
@@ -11,7 +12,6 @@ export interface ClassifierState {
 
 export const classifier = {
   namespaced: true,
-
   state: {
     classifiers: {
       ThumbSpreadClassifier: {
@@ -35,6 +35,16 @@ export const classifier = {
               classifier.state.classifiers.ThumbSpreadClassifier
                 .leapPointableIdentifier
             ]
+          };
+        }
+      },
+      ThumbIndexClassifier: {
+        enabled: false,
+        threshold: 30,
+        constructConfig: () => {
+          return {
+            identifier: ThumbIndexClassifierId,
+            args: [classifier.state.classifiers.ThumbIndexClassifier.threshold]
           };
         }
       }

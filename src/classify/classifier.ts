@@ -5,10 +5,16 @@ import { HandTrackRecording } from "@/state/modules/record";
 export interface ClassificationData {
   actionName: string;
   metrics: ClassificationMetrics;
+  cheats: ClassificationCheats;
 }
 
 export interface ClassificationMetrics {
   quality: number;
+}
+
+export interface ClassificationCheats {
+  cheated: boolean;
+  message: string;
 }
 
 export interface ClassifierConfig {

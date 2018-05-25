@@ -85,8 +85,11 @@ export class ThumbSpreadClassifier
             return {
               actionName: "ONE_SHOT",
               metrics: {
-                quality: 0,
-                cheatFactor: 0
+                quality: 0
+              },
+              cheats: {
+                cheated: false,
+                message: "NA"
               }
             };
           } else {
