@@ -16,13 +16,8 @@
         </section>
       </md-card-content>
       <md-card-actions>
-        <md-button 
-          :disabled="!classifierConfigured || !hasSalvagableStream"
-          class="md-raised md-primary"><md-icon>play_arrow</md-icon>Play
-          </md-button>
-          <md-tooltip v-if="!classifierConfigured || !hasSalvagableStream" md-direction="right">
-              <span v-if="!classifierConfigured">You or your therapist did not yet configure an appropriate gesture classifier for you. Please configure one in the Classification Tab.</span>
-              <span v-if="!hasSalvagableStream">The Hand Tracking device doesn't seem to be plugged in. Please plug in the device first!</span></md-tooltip>
+        <play-button @click="play('space-shooter')" />
+        <play-button-motion-tracking @click="play('space-shooter')" />
       </md-card-actions>
     </md-card>
     </section>
@@ -31,23 +26,22 @@
 import Vue from "vue";
 import { Inject, Component, Prop } from "vue-property-decorator";
 
-import { hasSalvagableStream } from "@/state/utils";
-import * as classifier from "@/state/modules/classifiers";
+import PlayButton from "@/ui/games/PlayButton.vue";
+import PlayButtonMotionTracking from "@/ui/games/PlayButtonMotionTracking.vue";
 
 @Component({
-  components: {}
+  components: {
+    PlayButton,
+    PlayButtonMotionTracking
+  }
 })
 export default class GameList extends Vue {
-  public get classifierConfigured() {
-    return classifier.getActiveClassifier(this.$store) !== undefined;
-  }
-
-  public get hasSalvagableStream() {
-    return hasSalvagableStream(this.$store);
+  public play(id: string) {
+    this.$router.push(`/games/play/${id}`);
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .md-card {
   max-width: 500px;
 }

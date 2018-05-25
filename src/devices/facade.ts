@@ -1,24 +1,24 @@
+import { inject, injectable } from "inversify";
 import {
   Observable,
-  Subscriber,
+  ReplaySubject,
   Subject,
-  Subscription,
-  ReplaySubject
+  Subscriber,
+  Subscription
 } from "rxjs";
 import { Store } from "vuex";
-import { injectable, inject } from "inversify";
 
+import DIIdent from "@/dependencyinjection/symbols";
 import {
-  DeviceFacade,
   DeviceDriver,
+  DeviceFacade,
   GenericHandTrackingData
 } from "@/devices/generic";
-import DIIdent from "@/dependencyinjection/symbols";
 import { IStoreFactory, IStoreHolder, RootState } from "@/state/store";
 
-import { getActiveRecording, HandTrackRecording } from "@/state/modules/record";
-import { PreProcessorConfig } from "@/processing/types";
 import { ClassifierConfig } from "@/classify";
+import { PreProcessorConfig } from "@/processing/types";
+import { getActiveRecording, HandTrackRecording } from "@/state/modules/record";
 
 async function replayInfinite(
   subscriber: Subscriber<GenericHandTrackingData>,
@@ -53,8 +53,8 @@ export function createFakeDeviceStream(
 export abstract class AbstractDeviceFacade implements DeviceFacade {
   private fakeSubscription: Subscription | undefined;
 
-  abstract getDeviceDriver(): DeviceDriver;
-  abstract getDeviceTrackingData():
+  public abstract getDeviceDriver(): DeviceDriver;
+  public abstract getDeviceTrackingData():
     | Observable<GenericHandTrackingData>
     | undefined;
 
@@ -69,25 +69,6 @@ export abstract class AbstractDeviceFacade implements DeviceFacade {
     return this.getDeviceTrackingData();
   }
 
-  private clearSubscriptions() {
-    if (this.fakeSubscription) {
-      this.fakeSubscription.unsubscribe();
-      this.fakeSubscription = undefined;
-    }
-  }
-
-  private updateStreamSources(store: Store<RootState>) {
-    const recordedData = getActiveRecording(store);
-    this.clearSubscriptions();
-    if (recordedData) {
-      this.fakeSubscription = createFakeDeviceStream(recordedData).subscribe(
-        fakeData => {
-          this.getDeviceDriver().digest(fakeData);
-        }
-      );
-    }
-  }
-
   public updatePreProcessors(configs: PreProcessorConfig[]) {
     this.getDeviceDriver().updatePreProcessors(configs);
   }
@@ -98,5 +79,28 @@ export abstract class AbstractDeviceFacade implements DeviceFacade {
 
   public getClassificationStream() {
     return this.getDeviceDriver().getClassificationData();
+  }
+
+  private clearSubscriptions() {
+    if (this.fakeSubscription) {
+      this.fakeSubscription.unsubscribe();
+      this.fakeSubscription = undefined;
+    }
+  }
+
+  private updateStreamSources(store: Store<RootState>) {
+    const recordedData = getActiveRecording(store);
+    this.clearSubscriptions();
+    if (recordedData !== undefined) {
+      this.fakeSubscription = createFakeDeviceStream(recordedData).subscribe(
+        fakeData => {
+          this.getDeviceDriver().digest(fakeData);
+        }
+      );
+    } else {
+      if (this.fakeSubscription) {
+        this.fakeSubscription.unsubscribe();
+      }
+    }
   }
 }

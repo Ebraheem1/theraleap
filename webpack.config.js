@@ -5,6 +5,23 @@ const rxPaths = require("rxjs/_esm5/path-mapping");
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const SWPrecacheWebpackPlugin = require("sw-precache-webpack-plugin");
+
+let definitions = {
+  __path__: JSON.stringify("/"),
+  __prod__: JSON.stringify(false)
+};
+
+const precachePluginSettings = {
+  cacheId: "theraleap",
+  filename: "service-worker.js",
+  minify: false,
+  mergeStaticsConfig: true,
+  stripPrefixMulti: {
+    "dist/": "/theraleap/"
+  },
+  staticFileGlobs: ["dist/*.html", "dist/**/*.json"]
+};
 
 module.exports = {
   entry: "./src/main.ts",
@@ -59,6 +76,17 @@ if (process.env.NODE_ENV === "production") {
       name: "manifest"
     }
   };
+  definitions.__path__ = JSON.stringify("/theraleap/");
+  definitions.__prod__ = JSON.stringify(true);
   // for Github Pages Deployment
   module.exports.output.publicPath = "/theraleap/";
+
+  precachePluginSettings.stripPrefixMulti[module.exports.output.path + "/"] =
+    "/theraleap/";
+  precachePluginSettings.navigateFallback = "/theraleap/index.html";
+  module.exports.plugins.push(
+    new SWPrecacheWebpackPlugin(precachePluginSettings)
+  );
 }
+
+module.exports.plugins.push(new webpack.DefinePlugin(definitions));
