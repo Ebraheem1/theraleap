@@ -1,0 +1,83 @@
+%%% File encoding: UTF-8
+%% äöüÄÖÜß  <-- no German Umlauts here? Use an UTF-8 compatible editor!
+
+%%% Magic comments for setting the correct parameters in compatible IDEs
+% !TeX encoding = utf8
+% !TeX program = pdflatex 
+% !TeX spellcheck = en_US
+% !BIB program = biber
+
+\documentclass[master,english]{hgbthesis}
+% Permissible options in [..]: 
+%   Type of work: diploma, master (default), bachelor, internship 
+%   Main language: german, english (default)
+%%%----------------------------------------------------------
+
+\RequirePackage[utf8]{inputenc}		% Remove when using lualatex or xelatex entfernen!
+\usepackage[titletoc]{appendix}
+\usepackage[acronym]{glossaries}
+\usepackage{enumitem}
+
+\graphicspath{{images/}}    % location of images and graphics
+\logofile{dhbw-logo}				% logo file = images/logo.pdf (use \logofile{} for no logo)
+\bibliography{references}  	% name of bibliography file (references.bib)
+
+%%%----------------------------------------------------------
+% Title page entries
+%%%----------------------------------------------------------
+
+%%% Entries for ALL types of work: --------------------------
+\title{Design and implementation of a computer aided ergotherapy framework}
+\author{Georg Grab}
+\programname{Applied Computer Science}
+\placeofstudy{Stuttgart}
+\dateofsubmission{2018}{06}{04}	% {YYYY}{MM}{DD}
+
+\advisor{Dirk Reichardt, Prof. Dr.} 
+
+\makeglossaries
+
+\loadglsentries{other/acronym}
+\loadglsentries{other/glossary}
+
+\begin{document}
+\frontmatter
+
+\maketitle
+\tableofcontents
+\printglossary[type=\acronymtype,title=Acronyms]
+\printglossary[title=Glossary]
+
+\include{front/abstract}
+
+%%%----------------------------------------------------------
+\mainmatter          			% main part (arabic page numbers)
+%%%----------------------------------------------------------
+\include{chapters/1_introduction}
+\include{chapters/2_relatedwork}
+\include{chapters/3_technologies_methods}
+\include{chapters/4_impl}
+\include{chapters/5_future}
+\include{chapters/6_conclusion}
+
+
+%%%----------------------------------------------------------
+\begin{appendices}
+    
+%%%----------------------------------------------------------
+\include{back/usermanual}
+\include{back/developermanual}
+
+\end{appendices}
+
+
+%%%----------------------------------------------------------
+\MakeBibliography                        				% references
+%%%----------------------------------------------------------
+
+%%% special page for checking print size --------------------
+\include{back/printbox}
+
+%%%----------------------------------------------------------
+\end{document}
+%%%----------------------------------------------------------
