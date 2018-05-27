@@ -3,12 +3,12 @@
       <md-card-header>
         <div class="md-title">Thumb Index Classifier</div>
         <div class="md-subhead">******</div>
-        <!-- <div class="enabled">
+        <div class="enabled">
             <md-switch
               :value="!thumbIndexClassifierEnabled"
               @change="classifierSelectionUpdated"
               class="md-accent">Enable</md-switch>
-        </div> -->
+        </div>
       </md-card-header>
 
       <md-card-content>
@@ -55,6 +55,11 @@ import { getDeviceFacade } from "@/state/modules/device";
 
 const EVT_CLASSIFIER_SEL_UPDATED = "classifierSelectionUpdated";
 
+@Component({
+  components: {
+    "s-code": Code
+  }
+})
 export default class ThumbIndexClassifier extends Vue {
   @Prop() public config!: any;
 
@@ -75,6 +80,7 @@ export default class ThumbIndexClassifier extends Vue {
   }
 
   get thumbIndexClassifierEnabled() {
+    console.log("B3d Component: ", this.config);
     return this.config.enabled;
   }
 }
