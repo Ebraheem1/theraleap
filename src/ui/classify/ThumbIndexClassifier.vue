@@ -68,7 +68,7 @@ export default class ThumbIndexClassifier extends Vue {
   }
 
   get thumbIndexThreshold() {
-    return this.config.thumbIndexThreshold;
+    return this.config.threshold;
   }
 
   set thumbIndexThreshold(newValue: string) {
@@ -80,7 +80,6 @@ export default class ThumbIndexClassifier extends Vue {
   }
 
   get thumbIndexClassifierEnabled() {
-    console.log("B3d Component: ", this.config);
     return this.config.enabled;
   }
 }

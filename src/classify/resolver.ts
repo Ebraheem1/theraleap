@@ -8,8 +8,8 @@ import {
 } from "@/classify/classifiers/thumbspread";
 
 import {
-  ThumbIndexClassifierId,
-  ThumbIndexClassifier
+  ThumbIndexClassifier,
+  ThumbIndexClassifierId
 } from "@/classify/classifiers/thumbindex";
 
 export const ClassifierRegistry: {

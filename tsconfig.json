@@ -1,6 +1,7 @@
 {
   "include": ["./src/**/*", "./typings/**/*"],
   "compilerOptions": {
+    "watch": true,
     "sourceMap": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
