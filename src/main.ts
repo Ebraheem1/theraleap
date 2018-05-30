@@ -16,7 +16,8 @@ import {
   MdDrawer,
   MdToolbar,
   MdEmptyState,
-  MdSnackbar
+  MdSnackbar,
+  MdRadio
   // @ts-ignore
 } from "vue-material/dist/components";
 
@@ -40,7 +41,8 @@ import Vuex from "vuex";
   MdDrawer,
   MdToolbar,
   MdEmptyState,
-  MdSnackbar
+  MdSnackbar,
+  MdRadio
 ].forEach(x => Vue.use(x));
 Vue.use(VueRouter);
 Vue.use(Vuex);

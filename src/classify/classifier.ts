@@ -9,6 +9,12 @@ export interface ClassificationData {
 
 export interface ClassificationMetrics {
   quality: number;
+  cheats: ClassificationCheats;
+}
+
+export interface ClassificationCheats {
+  cheated: boolean;
+  message: string;
 }
 
 export interface ClassifierConfig {

@@ -1,8 +1,14 @@
 <template>
   <section>
     <thumb-spread-classifier
-      :stream="examples.ThumbSpreadClassifier.stream" 
+      :stream="examples.ThumbSpreadClassifier.stream"
       :config="classifierConfigState.ThumbSpreadClassifier"
+      @classifierSelectionUpdated="classifierSelectionUpdated"
+    />
+
+    <wrist-angle-classifier
+      :stream="examples.WristAngleClassifier.stream"
+      :config="classifierConfigState.WristAngleClassifier"
       @classifierSelectionUpdated="classifierSelectionUpdated"
     />
   </section>
@@ -17,6 +23,7 @@ import { Classifier, ClassifierRegistry } from "@/classify";
 
 import GraphicalHandLogger from "@/ui/graphics/GraphicalHandLogger.vue";
 import ThumbSpreadClassifier from "@/ui/classify/ThumbSpreadClassifier.vue";
+import WristAngleClassifier from "@/ui/classify/WristAngleClassifier.vue";
 import { HandTrackRecording } from "@/state/modules/record";
 import { createFakeDeviceStream, GenericHandTrackingData } from "@/devices";
 
@@ -30,7 +37,8 @@ import { getDeviceFacade } from "@/state/modules/device";
 
 @Component({
   components: {
-    ThumbSpreadClassifier
+    ThumbSpreadClassifier,
+    WristAngleClassifier
   }
 })
 export default class Classifiers extends Vue {
@@ -41,6 +49,9 @@ export default class Classifiers extends Vue {
     };
   } = {
     ThumbSpreadClassifier: {
+      path: `${__path__}json/thera-rec-slow-thumb-spread.json`
+    },
+    WristAngleClassifier: {
       path: `${__path__}json/thera-rec-slow-thumb-spread.json`
     }
   };

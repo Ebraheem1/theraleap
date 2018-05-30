@@ -4,6 +4,7 @@ import { getStoreAccessors } from "vuex-typescript";
 
 import { RootState } from "@/state/store";
 import { ThumbSpreadClassifierId } from "@/classify/classifiers/thumbspread";
+import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
 
 export interface ClassifierState {
   classifiers: { [name: string]: any };
@@ -34,6 +35,24 @@ export const classifier = {
               classifier.state.classifiers.ThumbSpreadClassifier.throttleTime,
               classifier.state.classifiers.ThumbSpreadClassifier
                 .leapPointableIdentifier
+            ]
+          };
+        }
+      },
+      WristAngleClassifier: {
+        enabled: false,
+        upperAngleThreshold: 30,
+        lowerAngleThreshold: 30,
+        handType: "right",
+        constructConfig: () => {
+          return {
+            identifier: WristAngleClassifierId,
+            args: [
+              classifier.state.classifiers.WristAngleClassifier
+                .upperAngleThreshold,
+              classifier.state.classifiers.WristAngleClassifier
+                .lowerAngleThreshold,
+              classifier.state.classifiers.WristAngleClassifier.handType
             ]
           };
         }

@@ -16,13 +16,44 @@
         </section>
       </md-card-content>
       <md-card-actions>
-        <md-button 
+        <md-button
           @click="play('space-shooter')"
           class="md-raised md-primary"><md-icon>play_arrow</md-icon>Play
           </md-button>
-        <md-button 
+        <md-button
           :disabled="!classifierConfigured || !hasSalvagableStream"
           @click="play('space-shooter')"
+          class="md-raised md-primary"><md-icon>play_arrow</md-icon><md-icon>settings_remote</md-icon>Play with Motion Tracking
+          </md-button>
+          <md-tooltip v-if="!classifierConfigured || !hasSalvagableStream" md-direction="right">
+              <span v-if="!classifierConfigured">You or your therapist did not yet configure an appropriate gesture classifier for you. Please configure one in the Classification Tab.</span>
+              <span v-if="!hasSalvagableStream">The Hand Tracking device doesn't seem to be plugged in. Please plug in the device first!</span></md-tooltip>
+      </md-card-actions>
+    </md-card>
+
+    <md-card>
+      <md-card-media>
+      </md-card-media>
+
+      <md-card-header>
+        <div class="md-title">Super Mario</div>
+        <div class="md-subhead">Destroy evil Rocks with the epic power of your hand!</div>
+      </md-card-header>
+
+      <md-card-content>
+        <md-subheader>Game Description</md-subheader>
+        <section>
+            Move the Spaceship by hovering the hand over the sensor. The therapist will show you the Gesture you need to do in order to shoot the spaceship.
+        </section>
+      </md-card-content>
+      <md-card-actions>
+        <md-button
+          @click="play('super-mario')"
+          class="md-raised md-primary"><md-icon>play_arrow</md-icon>Play
+          </md-button>
+        <md-button
+          :disabled="!classifierConfigured || !hasSalvagableStream"
+          @click="play('super-mario')"
           class="md-raised md-primary"><md-icon>play_arrow</md-icon><md-icon>settings_remote</md-icon>Play with Motion Tracking
           </md-button>
           <md-tooltip v-if="!classifierConfigured || !hasSalvagableStream" md-direction="right">

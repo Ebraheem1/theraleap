@@ -82,6 +82,7 @@ export class ThumbSpreadClassifier
             Math.abs(leftOfZero.length - rightOfZero.length) <
               this.symmetryTolerance
           ) {
+            console.log("hi");
             return {
               actionName: "ONE_SHOT",
               metrics: {

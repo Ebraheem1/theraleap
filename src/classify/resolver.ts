@@ -7,10 +7,16 @@ import {
   ThumbSpreadClassifier
 } from "@/classify/classifiers/thumbspread";
 
+import {
+  WristAngleClassifierId,
+  WristAngleClassifier
+} from "@/classify/classifiers/wristAngle";
+
 export const ClassifierRegistry: {
   [_: string]: { new (...args: any[]): Operator<any, any> };
 } = {
-  [ThumbSpreadClassifierId]: ThumbSpreadClassifier
+  [ThumbSpreadClassifierId]: ThumbSpreadClassifier,
+  [WristAngleClassifierId]: WristAngleClassifier
 };
 
 export const ClassifyResolver = (
