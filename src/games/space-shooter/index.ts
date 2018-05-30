@@ -1,28 +1,28 @@
 const p5 = require("p5/lib/p5.min") as any;
 
-import { Game, GameConfiguration } from "@/games/types";
 import { ClassificationData } from "@/classify";
 import { GenericHandTrackingData } from "@/devices";
 import { LeapDeviceFrame } from "@/devices/leapmotion";
+import { Game, GameConfiguration } from "@/games/types";
 import { project } from "@/ui/graphics/util";
 
-import { Bullet, SpaceRock } from "./types";
+import Vue from "vue";
 import {
+  drawBullets,
+  drawScene,
+  drawScore,
+  drawSpaceRocks,
+  drawSpaceShip
+} from "./draw";
+import {
+  processBulletCollision,
+  processSpaceShipCollision,
   shootBullet,
   tickBullets,
   tickSpaceRocks,
-  processBulletCollision,
-  updateScore,
-  processSpaceShipCollision
+  updateScore
 } from "./logic";
-import {
-  drawBullets,
-  drawSpaceShip,
-  drawScene,
-  drawSpaceRocks,
-  drawScore
-} from "./draw";
-import Vue from "vue";
+import { Bullet, SpaceRock } from "./types";
 
 export default class SpaceShooterGame implements Game {
   public iP5: p5 | undefined;
@@ -40,17 +40,15 @@ export default class SpaceShooterGame implements Game {
   private bullets: Bullet[] = [];
   private spaceRocks: SpaceRock[] = [];
 
-  async onStart(
-    config: GameConfiguration,
-    notifyGameOver: (cb: (vm: Vue) => void) => void
-  ) {
+  private metricsArray: GenericHandTrackingData[] = [];
+
+  public async onStart(config: GameConfiguration, notifyGameOver: () => void) {
     this.width = config.element.clientWidth;
     this.height = config.element.clientHeight;
     this.x = config.element.clientWidth / 2;
     this.y = config.element.clientHeight - 50;
     this.iP5 = new p5((s: p5) => {
       s.setup = () => {
-        console.log(config.element.clientWidth);
         s.createCanvas(config.element.clientWidth, config.element.clientHeight);
       };
 
@@ -74,9 +72,7 @@ export default class SpaceShooterGame implements Game {
           this.spaceRocks
         );
         if (this.gameOver) {
-          notifyGameOver((vm: Vue) => {
-            vm.$router.push("/games/list");
-          });
+          notifyGameOver();
           s.remove();
         } else {
           drawScene(s);
@@ -89,23 +85,33 @@ export default class SpaceShooterGame implements Game {
     }, config.element);
   }
 
-  async onStop() {
-    console.log("onStop");
+  public async onStop(vm: Vue) {
+    vm.$router.push({
+      name: "game-over",
+      params: {
+        gameIdentifier: "space-shooter",
+        score: this.score,
+        statistics: this.metricsArray
+      } as any
+    });
   }
 
-  async onPause() {
+  public async onPause() {
     this.paused = true;
   }
 
-  async onResume() {
+  public async onResume() {
     this.paused = false;
   }
 
-  onClassificationReceived(c: ClassificationData) {
+  public onClassificationReceived(c: ClassificationData) {
     shootBullet(this.bullets, this.x, this.y, 5);
   }
 
-  onMotionTrackingDataReceived(m: GenericHandTrackingData) {
+  public onMotionTrackingDataReceived(m: GenericHandTrackingData) {
+    if (this.metricsArray.length < 1000) {
+      this.metricsArray.push(m);
+    }
     const leap = m.data as LeapDeviceFrame;
     const iBox = leap.interactionBox;
     if (leap.hands && leap.hands.length >= 1) {

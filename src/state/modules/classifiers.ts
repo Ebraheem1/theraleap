@@ -2,9 +2,9 @@ import Vue from "vue";
 import { ActionContext, Store } from "vuex";
 import { getStoreAccessors } from "vuex-typescript";
 
-import { RootState } from "@/state/store";
 import { ThumbSpreadClassifierId } from "@/classify/classifiers/thumbspread";
 import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
+import { RootState } from "@/state/store";
 
 export interface ClassifierState {
   classifiers: { [name: string]: any };

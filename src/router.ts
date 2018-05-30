@@ -32,19 +32,15 @@ const GameSettings = () => import("@/ui/games/GameSettings.vue");
 const GameRoot = () => import("@/ui/games/GameRoot.vue");
 const GameTabs = () => import("@/ui/games/GameTabs.vue");
 const GameExecutor = () => import("@/ui/games/GameExecutor.vue");
+const GameOver = () => import("@/ui/games/GameOver.vue");
 
 import App from "@/ui/App.vue";
 
 export const RootRouter = new VueRouter({
   routes: [
     {
-      path: "/",
-      component: App,
-      redirect: "/debug",
       children: [
         {
-          path: "debug",
-          redirect: "/debug/devicelog",
           children: [
             {
               component: DeviceLog,
@@ -62,11 +58,11 @@ export const RootRouter = new VueRouter({
           components: {
             main: DeviceDebugRoot,
             tabs: DeviceDebugTabs
-          }
+          },
+          path: "debug",
+          redirect: "/debug/devicelog"
         },
         {
-          path: "recorder",
-          redirect: "/recorder/main",
           children: [
             {
               component: DeviceRecorder,
@@ -80,11 +76,11 @@ export const RootRouter = new VueRouter({
           components: {
             main: DeviceRecorderRoot,
             tabs: DeviceRecorderTabs
-          }
+          },
+          path: "recorder",
+          redirect: "/recorder/main"
         },
         {
-          path: "classify",
-          redirect: "/classify/classifiers",
           children: [
             {
               component: Classifiers,
@@ -98,11 +94,11 @@ export const RootRouter = new VueRouter({
           components: {
             main: ClassifyRoot,
             tabs: ClassifyTabs
-          }
+          },
+          path: "classify",
+          redirect: "/classify/classifiers"
         },
         {
-          path: "data-processing",
-          redirect: "/data-processing/preprocessing",
           children: [
             {
               component: PreProcessing,
@@ -112,11 +108,11 @@ export const RootRouter = new VueRouter({
           components: {
             main: ProcessingRoot,
             tabs: ProcessingTabs
-          }
+          },
+          path: "data-processing",
+          redirect: "/data-processing/preprocessing"
         },
         {
-          path: "measurement",
-          redirect: "/measurement/display",
           children: [
             {
               component: HandMeasurement,
@@ -126,11 +122,11 @@ export const RootRouter = new VueRouter({
           components: {
             main: HandMeasurementRoot,
             tabs: HandMeasurementTabs
-          }
+          },
+          path: "measurement",
+          redirect: "/measurement/display"
         },
         {
-          path: "games",
-          redirect: "/games/list",
           children: [
             {
               component: Games,
@@ -144,14 +140,25 @@ export const RootRouter = new VueRouter({
               component: GameExecutor,
               path: "play/:gameIdentifier",
               props: true
+            },
+            {
+              component: GameOver,
+              name: "game-over",
+              path: "game-over",
+              props: true
             }
           ],
           components: {
             main: GameRoot,
             tabs: GameTabs
-          }
+          },
+          path: "games",
+          redirect: "/games/list"
         }
-      ]
+      ],
+      component: App,
+      path: "/",
+      redirect: "/debug"
     }
   ]
 });

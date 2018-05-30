@@ -1,23 +1,24 @@
 import Vue from "vue";
 import {
-  MdCard,
   MdApp,
-  MdSwitch,
-  MdSubheader,
-  MdField,
-  MdDivider,
-  MdIcon,
-  MdProgress,
-  MdTooltip,
-  MdTabs,
-  MdContent,
   MdButton,
-  MdList,
+  MdCard,
+  MdCheckbox,
+  MdContent,
+  MdDivider,
   MdDrawer,
-  MdToolbar,
   MdEmptyState,
+  MdField,
+  MdIcon,
+  MdList,
+  MdProgress,
   MdSnackbar,
-  MdRadio
+  MdSubheader,
+  MdSwitch,
+  MdTabs,
+  MdToolbar,
+  MdRadio,
+  MdTooltip
   // @ts-ignore
 } from "vue-material/dist/components";
 
@@ -26,6 +27,7 @@ import Vuex from "vuex";
 
 [
   MdCard,
+  MdCheckbox,
   MdApp,
   MdSwitch,
   MdSubheader,
@@ -51,10 +53,10 @@ Vue.use(Vuex);
 import VueOffline from "vue-offline";
 Vue.use(VueOffline);
 
-import { RootRouter } from "@/router";
-import { DeviceDriver } from "@/devices";
 import { AppContainer } from "@/dependencyinjection";
 import DIInject from "@/dependencyinjection/symbols";
+import { DeviceDriver } from "@/devices";
+import { RootRouter } from "@/router";
 import { IStoreFactory } from "state/store";
 
 declare const __path__: string;
@@ -66,7 +68,7 @@ if ("serviceWorker" in navigator && __prod__) {
 
 export const RootVue = new Vue({
   el: "#app",
+  render: create => create("router-view"),
   router: RootRouter,
-  store: AppContainer.get<IStoreFactory>(DIInject.VUEX_STORE_FACTORY).get(),
-  render: create => create("router-view")
+  store: AppContainer.get<IStoreFactory>(DIInject.VUEX_STORE_FACTORY).get()
 });
