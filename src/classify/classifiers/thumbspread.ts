@@ -90,7 +90,8 @@ export class ThumbSpreadClassifier
               cheats: {
                 cheated: false,
                 message: "NA"
-              }
+              },
+              time: -1
             };
           } else {
             return undefined;

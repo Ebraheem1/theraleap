@@ -16,11 +16,12 @@ import {
   resetState
 } from "./draw";
 import { Game, GameConfiguration } from "@/games/types";
-import { normalizePoint } from "@/classify/classifiers/thumbindex.ts";
+
 import { LeapDeviceFrame } from "@/devices/leapmotion/leaptrackingdata.ts";
 import { ClassificationData } from "@/classify";
 import { GenericHandTrackingData } from "@/devices";
 import Vue from "vue";
+import { project } from "@/ui/graphics/util";
 
 export default class SpaceShipGame implements Game {
   public iP5: p5 | undefined;
@@ -54,6 +55,7 @@ export default class SpaceShipGame implements Game {
   private mX: number = 0;
   private mY: number = 0;
   private posX: number = 240;
+  private timeArray: number[] = [];
 
   public printHealth(ctx: p5) {
     ctx.imageMode(ctx.CENTER);
@@ -179,7 +181,6 @@ export default class SpaceShipGame implements Game {
     this.iP5 = new p5((s: p5) => {
       s.setup = () => {
         s.createCanvas(config.element.clientWidth, config.element.clientHeight);
-        s.frameRate(30);
         importImgs(s);
         this.gameOver = 0;
         this.enemyS = 3;
@@ -201,7 +202,7 @@ export default class SpaceShipGame implements Game {
           this.printMeteor(s);
           this.damageCheck();
           this.printScore(s);
-          this.enemyS = 1;
+          this.enemyS = 0.5;
           this.genSL(s);
           s.imageMode(s.CENTER);
           s.image(mouseC, this.posX, this.height - 60);
@@ -227,11 +228,18 @@ export default class SpaceShipGame implements Game {
   }
 
   public onClassificationReceived(c: ClassificationData) {
-    if (c && c.actionName == "SHOT") {
+    if (this.pointDis == 2000 || this.pointDis == -1 || this.gameOver == 1) {
+      return;
+    }
+    if (c && c.actionName == "SHOT-TI") {
       this.playLaser();
       resetState();
     } else if (c && c.cheats.cheated) {
+      console.log("Na fel Cheat");
       drawAnim(this.ctx, c.cheats.message, this.width, this.height);
+    }
+    if (c && !c.cheats.cheated && c.time > 0) {
+      this.timeArray.push(c.time);
     }
   }
   public onMotionTrackingDataReceived(m: GenericHandTrackingData) {
@@ -243,13 +251,14 @@ export default class SpaceShipGame implements Game {
       ) {
         const iBox = leap.interactionBox;
         var position = leap.pointables[1].stabilizedTipPosition;
-        var normPosition = normalizePoint(
-          position,
-          iBox.center,
-          iBox.size,
-          true
+        var x = project(
+          leap.hands[0].palmPosition[0],
+          iBox.center[0] - iBox.size[0] / 2,
+          iBox.center[0] + iBox.size[0] / 2,
+          0,
+          this.width
         );
-        this.checkDistMine(this.ctx, this.width * normPosition[0]);
+        this.checkDistMine(this.ctx, x);
       }
     }
   }

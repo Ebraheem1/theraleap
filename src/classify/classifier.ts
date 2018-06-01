@@ -6,6 +6,7 @@ export interface ClassificationData {
   actionName: string;
   metrics: ClassificationMetrics;
   cheats: ClassificationCheats;
+  time: any;
 }
 
 export interface ClassificationMetrics {

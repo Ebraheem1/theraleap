@@ -135,7 +135,11 @@ export const drawAnim = (
   if (state != "NA") {
     message = state;
   }
-  state = message;
+  var color = ctx.color(255, 0, 0);
+  var fontSize = 25;
+  ctx.fill(color);
+  ctx.textSize(fontSize);
+  ctx.text(message, width / 2 - 0.1 * width, height / 2 + 0.1 * height);
   switch (message) {
     case "Move your hand down": {
       movedownframe = (movedownframe + 1) % movedown.length;
@@ -230,6 +234,10 @@ export const drawAnim = (
         state = "NA";
         grabstrengthlastframe = 0;
       }
+      break;
+    }
+    case "No Hand": {
+      changeProgressBarColor(ctx, false);
       break;
     }
   }

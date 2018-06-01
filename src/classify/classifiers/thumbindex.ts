@@ -22,23 +22,6 @@ const directionUp = (tipPosition: number[], metacarpal: number[]): boolean => {
   else return false;
 };
 
-export const normalizePoint = (
-  pos: number[],
-  center: number[],
-  size: number[],
-  flag: boolean
-): number[] => {
-  var vect = [0, 0, 0];
-  vect[0] = (pos[0] - center[0]) / size[0] + 0.5;
-  vect[1] = (pos[1] - center[1]) / size[1] + 0.5;
-  vect[2] = (pos[2] - center[2]) / size[2] + 0.5;
-  if (flag) {
-    vect[0] = Math.min(Math.max(vect[0], 0), 1);
-    vect[1] = Math.min(Math.max(vect[1], 0), 1);
-    vect[2] = Math.min(Math.max(vect[2], 0), 1);
-  }
-  return vect;
-};
 const dotProduct = (arr1: number[], arr2: number[]): number => {
   return (
     arr1[0] * arr2[0] * -1 + arr1[1] * arr2[1] * -1 + arr1[2] * arr2[2] * -1
@@ -59,8 +42,17 @@ export class ThumbIndexClassifier
   implements
     Operator<LeapHandTrackingData, ClassificationData>,
     ThumbIndexLeapHelpers {
-  constructor(private detectionThreshold: number, private thumbState: boolean) {
-    thumbState = false;
+  constructor(
+    private detectionThreshold: number,
+    private thumbState: boolean,
+    private startCheat: any,
+    private cheatedTime: any,
+    private prevtime: any
+  ) {
+    this.thumbState = false;
+    this.startCheat = -1;
+    this.cheatedTime = 0;
+    this.prevtime = 0;
   }
   public measuringAngleBetweenFingers(
     frame: LeapDeviceFrame
@@ -76,14 +68,22 @@ export class ThumbIndexClassifier
     }
   }
   public checkThumb(angle: number): boolean {
-    if (angle > this.detectionThreshold && !this.thumbState) {
+    if (angle >= this.detectionThreshold && !this.getThumbState()) {
+      this.setThumbState(true);
       return true;
-    } else if (this.thumbState && angle < this.detectionThreshold) {
-      this.thumbState = false;
+    } else if (this.getThumbState() && angle < this.detectionThreshold) {
+      this.setThumbState(false);
       return false;
     } else {
       return false;
     }
+  }
+
+  public setThumbState(bol: boolean) {
+    this.thumbState = bol;
+  }
+  public getThumbState(): boolean {
+    return this.thumbState;
   }
 
   public call(
@@ -106,6 +106,8 @@ export class ThumbIndexClassifier
               roll(hand.palmNormal[0], hand.palmNormal[1]) * (180 / Math.PI);
 
             if (hand.stabilizedPalmPosition[1] < 270) {
+              this.startCheat =
+                this.startCheat == -1 ? new Date() : this.startCheat;
               return {
                 actionName: "NA",
                 metrics: {
@@ -114,9 +116,12 @@ export class ThumbIndexClassifier
                 cheats: {
                   cheated: true,
                   message: "Please, Raise your hand a bit more :)"
-                }
+                },
+                time: -1
               };
             } else if (Math.floor(rotationAngle) > 20) {
+              this.startCheat =
+                this.startCheat == -1 ? new Date() : this.startCheat;
               return {
                 actionName: "NA",
                 metrics: {
@@ -125,9 +130,12 @@ export class ThumbIndexClassifier
                 cheats: {
                   cheated: true,
                   message: "Rotate your hand to the right to be flat."
-                }
+                },
+                time: -1
               };
             } else if (Math.floor(rotationAngle) < -20) {
+              this.startCheat =
+                this.startCheat == -1 ? new Date() : this.startCheat;
               return {
                 actionName: "NA",
                 metrics: {
@@ -136,13 +144,16 @@ export class ThumbIndexClassifier
                 cheats: {
                   cheated: true,
                   message: "Rotate your hand to the left to be flat."
-                }
+                },
+                time: -1
               };
             } else if (wristAngle > 20) {
               var tip = frame.data.pointables[2].dipPosition;
               var metacarpal = frame.data.pointables[2].mcpPosition;
               var flag = directionUp(tip, metacarpal);
               var msg = "";
+              this.startCheat =
+                this.startCheat == -1 ? new Date() : this.startCheat;
               if (flag) {
                 msg = "Move your hand down";
               } else {
@@ -156,9 +167,12 @@ export class ThumbIndexClassifier
                 cheats: {
                   cheated: true,
                   message: msg
-                }
+                },
+                time: -1
               };
             } else if (hand.grabStrength > 0.1) {
+              this.startCheat =
+                this.startCheat == -1 ? new Date() : this.startCheat;
               return {
                 actionName: "NA",
                 metrics: {
@@ -167,28 +181,69 @@ export class ThumbIndexClassifier
                 cheats: {
                   cheated: true,
                   message: "Please Stretch Your Fingers."
-                }
+                },
+                time: -1
               };
             }
+            if (this.startCheat != -1) {
+              var now: any = new Date();
+              this.cheatedTime += now - this.startCheat;
+              this.startCheat = -1;
+            }
             var angle = this.measuringAngleBetweenFingers(frame.data);
+            var now: any = new Date();
+            var timetaken: any = 0;
+            if (this.prevtime == 0) {
+              this.prevtime = now;
+              timetaken = -1;
+            } else {
+              timetaken = now - this.prevtime - this.cheatedTime;
+              this.prevtime = now;
+              this.cheatedTime = 0;
+            }
+
             if (angle && this.checkThumb(angle)) {
               return {
-                actionName: "SHOT",
+                actionName: "SHOT-TI",
                 metrics: {
                   quality: 0
                 },
                 cheats: {
                   cheated: false,
                   message: "NA"
-                }
+                },
+                time: timetaken
               };
             } else {
-              return undefined;
+              return {
+                actionName: "NA",
+                metrics: {
+                  quality: 0
+                },
+                cheats: {
+                  cheated: false,
+                  message: "NA"
+                },
+                time: timetaken
+              };
             }
+          } else if (frame.data.hands.length == 0) {
+            return {
+              actionName: "NA",
+              metrics: {
+                quality: 0
+              },
+              cheats: {
+                cheated: true,
+                message: "No Hand"
+              },
+              time: timetaken
+            };
           } else {
             return undefined;
           }
-        })
+        }),
+        filter(x => x !== undefined)
       )
       .subscribe(subscriber);
   }
