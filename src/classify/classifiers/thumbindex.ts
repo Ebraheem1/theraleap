@@ -1,11 +1,5 @@
 import { Observable, Operator, Subscriber } from "rxjs";
-import {
-  filter,
-  map,
-  bufferTime,
-  debounceTime,
-  throttleTime
-} from "rxjs/operators";
+import { filter, map } from "rxjs/operators";
 
 import { GenericHandTrackingData } from "@/devices/generic";
 import { LeapHandTrackingData, LeapPointable } from "@/devices/leapmotion";
@@ -193,16 +187,16 @@ export class ThumbIndexClassifier
             var angle = this.measuringAngleBetweenFingers(frame.data);
             var now: any = new Date();
             var timetaken: any = 0;
-            if (this.prevtime == 0) {
-              this.prevtime = now;
-              timetaken = -1;
-            } else {
-              timetaken = now - this.prevtime - this.cheatedTime;
-              this.prevtime = now;
-              this.cheatedTime = 0;
-            }
-
             if (angle && this.checkThumb(angle)) {
+              //When it shots it just can finish the timer calculations
+              if (this.prevtime == 0) {
+                this.prevtime = now;
+                timetaken = -1;
+              } else {
+                timetaken = now - this.prevtime - this.cheatedTime;
+                this.prevtime = now;
+                this.cheatedTime = 0;
+              }
               return {
                 actionName: "SHOT-TI",
                 metrics: {

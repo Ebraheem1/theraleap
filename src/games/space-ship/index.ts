@@ -212,6 +212,7 @@ export default class SpaceShipGame implements Game {
           s.image(sL, this.sl3x, this.sl3y);
           this.printHealth(s);
         } else if (this.pointDis >= 2000 && this.gameOver != 1) {
+          var condition = this.pointDis;
           //this assignment to prevent the draw function to enter this if condition again
           this.pointDis = -1;
         }
@@ -229,12 +230,15 @@ export default class SpaceShipGame implements Game {
   }
 
   public onClassificationReceived(c: ClassificationData) {
-    if (this.pointDis == 2000 || this.pointDis == -1 || this.gameOver == 1) {
+    if (this.pointDis >= 2000 || this.pointDis == -1 || this.gameOver == 1) {
       return;
     }
     if (c && c.actionName == "SHOT-TI") {
       this.playLaser();
       this.state = "NA";
+      if (this.timeArray.length < 30000 && c.time > 0) {
+        this.timeArray.push(c.time);
+      }
     } else if (c && c.cheats.cheated) {
       //This is generic file, as
       //there might be other classifiers that use the same game and they don't have
@@ -245,9 +249,6 @@ export default class SpaceShipGame implements Game {
       else drawAnim(this.ctx, c.cheats.message, this.width, this.height);
     } else if (c && c.actionName == "NA-TI") {
       this.state = "NA";
-    }
-    if (c && !c.cheats.cheated && c.time > 0) {
-      this.timeArray.push(c.time);
     }
   }
   public onMotionTrackingDataReceived(m: GenericHandTrackingData) {
