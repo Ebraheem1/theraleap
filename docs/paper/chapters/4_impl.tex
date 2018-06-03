@@ -1,33 +1,326 @@
 \chapter{Framework Implementation}
+\label{sec:impl}
+\section{Architecture Decision}
+\subsection{Available Alternatives}
+Based on the requirements outlined in section \ref{sec:reqanalysis}, which have been gathered and derived in various in-person meetings with the stakeholding therapists, multiple technologies for implementing the system seem feasible. The alternatives considered at the beginning of this project are outlined as follows.
+
+\subsubsection{Fully featured Web Application}
+\label{sec:alt:fully-featured-web-app}
+One technological possibility would be to implement the core system framework as a fully featured Web Application. All requirements would be implemented using web technologies. Most notably, data ingestion, preprocessing, classification, and monitoring would have to be accomplished entirely in the context of a web browser. The system would be self-sufficient in this configuration, without reliance on any external systems, though an external server component for sending the monitoring information is conceivable (see requirement \ref{sec:req:monitorability}).
+
+This configuration is very favorable in terms of deployment and extensibility, as every component is consistently written in Javascript, the standardized programming language of the web. Likewise, as functionality is not distributed over multiple systems, the deployment of the systems only requires a web browser\footnote{The installation of relevant hardware device drivers on the target device is also required for the system to function, but as the same is true for all other alternatives, this is not considered under the ease of deployment aspect.}.
+
+However, for this configuration to be feasible, it is required that the domain virtualization device contains an API to the Web Browser. Also, the Javascript programming language is sometimes critizied for its relatively poor performance when compared to programming languages with compilers capable of producing native code. This is owed in large parts to the dynamically typed and interpreted nature of the language. Some benchmarks show that Javascript is up to ten times slower in terms of runtime performance compared to C++ when running computationally expensive tasks \cite{BenchmarksGame}. The question of whether Javascript is performant enough to tackle the task at hand has to be clarified before this alternative can be considered feasible.
+\subsubsection{Web Application with local server component}
+\label{sec:alt:thin-web-app}
+The two main disadvantages of the fully featured Web Application, the need for a Web API of the virtualization device and the performance considerations, could be mitigated by moving the computationally expensive logic in a locally running server component, and interfacing the two components by using an asynchronous communication specifications such as WebSockets or XmlHttpRequest. As the code running in the server component is running with Operating System permissions, it could directly interface with the hardware device. Additionally, all logic concerned with working with the virtualization device data could be implemented in native code, resulting in high performance.
+
+This approach in turn poses the disadvantage that a lot of additional complexity is introduced into the system. The system would no longer be implemented in a single programming language. Additionally, the system would no longer be easy to deploy, as compiled binary packages would have to be provided and thoroughly tested for each desired target Operating System.
+\subsubsection{Web Application with remote server component (backend)}
+\label{sec:alt:thin-remote-web-app}
+Following up on the design outlined in section \ref{sec:alt:thin-web-app}, the system could also be designed with a remote server component instead of a locally running server. This would have the advantage of all device data being available
+at one centralized location, where very elaborate analytics could be performed. As all alternatives outlined in this section will eventually require a backend component for accumulating monitoring information for the therapist to view and inspect, this approach initially seems to reduce complexity.
+
+However, the virtualized domain data would again have to be ingested by the Web Application, in a similar fashion to the alternative outlined in \ref{sec:alt:fully-featured-web-app}, as no local application is available to handle the connection to the hardware device. Furthermore, all virtualization device data would have to be sent over the network connection of the end device, potentially resulting in high latency, and possibly full system outage if the end device fails to establish an internet connection.
+\subsubsection{Desktop Application}
+\label{sec:alt:desktop-app}
+Finally, the system could be designed without relying on Web technologies altogether, and be instead implemented as a traditional Desktop Application.
+
+\begin{table}[h]\footnotesize
+\caption{Comparison of implementation alternatives based on estimated requirement fulfillment}
+\label{alt:table-requirement-comparison}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l|cccccc}
+    &
+    \rot{Functional Reqs.} &
+    \rot{Modularization} &
+    \rot{Performance} &
+    \rot{Availability} &
+    \rot{Deployment} &
+    \rot{Extensibility}
+        \\ \hline
+    Desktop App (\ref{sec:alt:desktop-app})               &   & X & X & X &   &   \\ 
+    Web thin client (\ref{sec:alt:thin-web-app})          & X & X &   &   & X & X \\ 
+    Web local client (\ref{sec:alt:thin-remote-web-app})  & X & X & X & X &   &   \\
+    Web fat client (\ref{sec:alt:fully-featured-web-app}) & X & X & ? & X & X & X \\ \hline
+\end{tabular}
+\normalsize
+\end{table}
+\subsection{Elected Alternative}
+Table \ref{alt:table-requirement-comparison} gives an overview over the likely requirement fulfillment of the discussed implementation alternatives. 
+\\
+The Desktop Application is the only proposed architecture incapable of intrinsically meeting the functional requirements: as the therapists plan on viewing and evaluating the platform monitoring data from a Web based interface, a separate application would need to be developed for that sole purpose. Regarding the \glspl{NFR}, Performance and Modularization can be fulfilled easily, as statically typed, modern programming languages that compile to platform-native code can be employed. In addition, the system could be designed in such a way that meets the Availability requirement. However, as the architecture cannot fulfill all Functional Requirements, and additionally lacks the \glspl{NFR} of Deployment (platform dependant binary must be provided) and Extensibility (future developers will likely need to learn a new programming language), this alternative is ruled out as a potential platform architecture.
+\\\\
+While the Web based thin client outlined in section \ref{sec:alt:thin-remote-web-app} is capable of implementing all functional requirements, the architecture is ruled out as it is relying on a remote server for basic functionality, resulting in a failure to meet the Availability \gls{NFR}. Additionally, even if a network connection is available, there are serious considerations to be made regarding network latency. The latency aspect imposes a performance dependency on the quality of the users internet connection, resulting in at least unreliable performance.
+\\\\
+The Web based client backed up by a local webserver as outlined in section \ref{sec:alt:thin-web-app} solves the problems of the Web based thin client regarding Availability and Performance, however, the ease of deployment aspect would be lost by the fact that a native platform binary is required for executing the application. Also extensibility is jeopardized, as a large amount of complexity is introduced into the system, most notably the fact that two separate programming languages or frameworks would be required for developing the system. While these tradeoffs would certainly not be critical, this choice of architecture is considered unfavorable for the time being.
+\\\\
+The fully featured Web Application has the theoretical capability to meet all functional requirements. Additionally, most non-fuctional requirements can be met by the architecture: the modern Javascript ecosystem allows for modularization and code splitting capabilities through the use of ES6 Modules. Furthermore, supersets of the language exist that provide support for static typing, such as Typescript. A static type system has the advantage that programming interfaces may be explicitly typed, so the program becomes easier to extend by developers not fully familiar with the program as a whole \cite{TypescriptUnderstanding}. It can be assumed that development on the Web platform is well known to the target developer audience, as it is a well established topic that is teached in most computer science related university courses. In addition, the architecture is easy deploy on the target end devices: in essence, all that is required from the end users is to navigate to a Website using a relatively recent Internet Browser. While this action initially seems to break the Availability requirement, modern Web Specifications, most notably the Service Worker Specification, allow for the application to still be available if the network connection is lost \cite{serviceworkersdraft}. The only non-functional requirement of the application that is in need for clarification is whether the architecture supports adequate performance for resolving the task at hand. However, several Web technologies are currently developed to mitigate this exact problem. Most notably, the widely adoped Web Workers specification essentially allows for developing multi threaded applications on the Web \cite{workerdraft}. Additionally, the WebAssembly specification has recently reached a mature state and is available in all major browsers. WebAssembly is a binary instruction format designed to be deployed on the web, allowing for web developers to develop code executing at near native speed while maintaining cross platform compatibility \cite{wasmdraft}.
+
+Based on the considerations employed in this section, the fully featured Web Application is chosen as the system architecture, as it seems to support implementation of all imposed requirements.
+
 \section{System Architecture}
-\section{Development Pipeline}
-Webpack 4
 
-VueJS 2, Vue Router, VueX, inversify Dependency Injection
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{highlevelarch}
+    \caption{High Level Architecture Overview}
+    \label{fig:high-level-architecture}
+\end{figure}
+A high level overview of the resulting architecture is outlined in Figure \ref{fig:high-level-architecture}. High level architecture components are prepresented as rectangles, relations between them are displayed as arrows. An \emph{includes} relationship is illustrated by nested rectangles. The architecture closely follows the state management pattern recommended by Vuex. 
 
-Karma Unit Tests
+The Frontend, illustrated by a single rectangle in this case, communicates with the Application State by signifying desired state changes (for example, the ticking of a checkbox) by commiting mutations. At the same time, the Frontend components declare a dependency on relevant parts of the state. If these parts of the state update, Vuex automatically rerenders the dependant Frontend components in order to reflect the changes.
 
-THREE.js
-\section{Implemented Subsystems}
+The Application State itself contains, apart from the state of the Frontend Components, references to the other subcomponents of the application, namely references to a component facilitating persistence, configuration information for data preprocessors and classifiers, and finally a reference to the device facade component, which facilitates access to the device driver implementation. These components are further elaborated in the following sections. 
+
+\subsection{Frontend}
+\label{sec:impl:frontend}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{frontend}
+    \caption{Frontend: Detailed Subcomponent Overview}
+    \label{fig:frontend-overview}
+\end{figure}
+
+As Figure \ref{fig:frontend-overview} illustrates, the frontend is divided in a number of subcomponents, each responsible for fulfilling a specific purpose.
+
+\subsubsection{Debug Interface}
+The Debug Interface is responsible for diagnosing problems if the connection to the motion tracking device cannot be established, and for providing development tooling. It is thus mainly responsible for contributing towards the Extensibility \gls{NFR} (section \ref{sec:nfr:extensibility}). The Interface consists of three subcomponents.
+
+\paragraph*{Raw Device Logger}
+
+The Raw Device Logger is a Frontend Component capable of displaying the raw device frames as they arrive. The component receives the incoming data stream, and formats it in order to be human readable. As new data arrives, the Component updates itself automatically, making it possible to inspect the incoming device data over time. The Component acts as a developer tool, allowing the developer to view live device data, and thus gain intuition over how the device data is structure and how it is changing over time.
+
+\paragraph*{Graphical Device Logger}
+
+Similarly, the Graphical Device Logger is acting on the incoming device data stream, but instead of formatting the raw data in a textual manner, it is interpreted graphically. Using the Three.JS library (\ref{sec:tech:threejs}), graphical hand and finger objects are created and displayed inside a 3-dimensional coordinate system.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=8cm]{graphical-hand-logger}
+    \caption{The Graphical Hand Logger.}
+    \label{fig:graphical-hand-logger}
+\end{figure}
+
+Figure \ref{fig:graphical-hand-logger} illustrates the graphical representation the component is able to produce for Leap Motion Device Data. The Component is able to display other device data as well, though only illustrations based on Leap Motion Device Data are implemented as part of this work. The Leap-Motion specific illustration is constructed by first projecting the interactionBox-relative positional device data (see section \ref{sec:tech:leap-domain-model}) in the THREE.js coordinate system by applying the formula
+
+\begin{equation}
+x_{proj} = proj_{min} + (proj_{max} - proj_{min}) * \dfrac{x_{leap} - iBox_{min}}{iBox_{max} - iBox_{min}}    
+\end{equation}
+
+to each dimension of relevant positional data, where $x_{proj}$ is the target position, $proj$ describes the bounds of the target projection, $x_{leap}$ is the positional data of the Leap Motion Device, and $iBox$ describes the bounds of the interactionBox. 
+
+Afterwards, the palm is drawn by constructing a 2-dimensional disc, and sizing, positioning, and rotating it according to the transformed hand data. The fingers are drawn by constructing a 3-dimensional tube from each pointable object of the frame data. The tube is constructed from the skeletal tracking information of the pointable and interpolated using a Centripetal Catmull-Rom spline. This type of interpolating curve is widely used in the field of computer graphics because of several useful mathematical properties \cite{Yuksel2011}.
+
+\paragraph*{Device Status Log}
+The Device Status Log is the final debugging component of the framework. The Status Log portrays the state of the three main failure points of the application. The main failure points include the connection of the Javascript Device Driver to the Native Device Driver (see \ref{sec:tech:leap-hardware-driver}), the availability of the Native Device Driver, and the Physical availability of the hardware tracking device. The Framework is able to detect the state of all three of these failure conditions, and displays instructions to the user on how to mitigate these problems in case one or more failures occur.
+
+\subsubsection{Hand Measurement}
+The ergo therapist is required to measure angles between certain bones of the hand in order to determine how the patient is progressing in recovery \cite[sec. 4.1.6]{StudiArbeitVolzBaumotte}. The digitized ergo therapy system should be able to perform these measurements as well in order to reduce the manual workload of the therapist.
+
+The reference implementation of the system includes a frontend component with the ability to take measurements of the angles between neighboring fingers. Other types of measurements are able to be integrated in the framework easily by using existing code structure and utility functions. The measurements are able to be averaged across a configurable timeframe in order to achieve more accurate results. The angle calculation itself is performed by applying the formula
+
+%export const calculatePointableAngle = (
+%  first: LeapPointable,
+%  second: LeapPointable
+%): number => {
+%  const ab = first.direction
+%    .map((el, idx) => el * second.direction[idx])
+%    .reduce((p, c) => p + c, 0);
+%  const normFirst = norm(first.direction);
+%  const normSecond = norm(second.direction);
+%  const theta = Math.acos(ab / (normFirst * normSecond));
+%  return theta * 180 / Math.PI;
+%};
+\begin{equation}
+angle = \arccos(\dfrac{\vec{p_1} * \vec{p_2}}{\norm{\vec{p_1}} * \norm{\vec{p_2}}}) * \dfrac{180}{\pi}
+\end{equation}
+
+to the directional vectors of neighboring fingers.
+
+\subsubsection{Preprocessing and Classification Configuration}
+The stream pre-processing and classification frameworks, outlined in further detail in sections \ref{sec:impl:preprocessing} and \ref{sec:impl:classify} respectively, require user configuration from the frontend. The available subcomponents that are available for each framework can be toggled on or off, and supplied with configuration that the subcomponent requires. Every change made in the Frontend configuration will automatically be propagated through the system, and will be available immediately.
+
+\subsubsection{Game Listing}
+The most integral part of the system is for the patient to be able to play games by means of performing the relevant recovery exercises as dictated by the therapist (see section \ref{sec:frs}). In order to implement this functionality in the system, the frontend has a component where the available Games are listed. For each available Game, a short title and description is shown. Furthermore, this component validates if the system is ready to execute the game (i.e., the motion tracking device is plugged in and functioning normally, and a classifier has been activated, as outlined in \ref{sec:impl:classify}). After the component has validated that the system is ready, a Play Button becomes available to the user. After the Play Button has been pressed, the component hands control to the Game Execution Framework (see section \ref{sec:impl:gameexec}).
+
+\subsubsection{Hand Recorder}
+\label{sec:impl:hand-recorder}
+The Hand Recorder is a Frontend Component with the primary purpose to alleviate framework developers from having to physically connect a hand tracking device in order to develop preprocessors, classifiers, or games for the platform. The component allows to record series of device frames. Optionally, the recordings may be titled, and persisted in the Persistence Provider implementation (see section \ref{sec:impl:persist}). If a previously saved recording is activated using this component, the contained frames will be propagated in an endless loop through the framework as if they were coming from a physical device. Only one saved recording may be active at any given time. If a hand tracking device is already connected and functioning as expected, the data coming from the recording will be preferred. Furthermore, the user is able to download saved recordings, for example in order to reproduce bugs, or using them for illustration purposes in other parts of the system.
+
+\subsection{Device Facade Interface}
+The Device Facade Interface is the primary access point for frontend components that wish to work with motion tracking device data. The Interface, named after the well-known Facade pattern in Software Development \cite{Gamma:1995:DPE:186897}, decouples the Frontend Components both from the actual implementation of the Device Driver (see section \ref{sec:impl:driver}), as well as the actual data source (i.e., Recording, Physical, or potential future data sources).
+
+
+Figure \ref{fig:device-facade-interface} shows an excerpt of the Interface. References to \gls{RX} streams representing Hand Tracking Data, Classification Data (see \ref{sec:impl:classify}), and the DeviceDriver implementation itself may be optained. Additionally, the Facade may receive Configuration updates regarding the Data Preprocessing and Classification Frameworks from Frontend Components, which will subsequently be relayed into the Device Driver for further processing.
+\begin{figure}
+\begin{minted}{typescript}
+export interface DeviceFacade {
+    getHandTrackingData: (
+      store: Store<RootState>
+    ) => Observable<GenericHandTrackingData> | undefined;
+    getClassificationStream: () => Observable<ClassificationData> | undefined;
+    getDeviceDriver: () => DeviceDriver;
+    updatePreProcessors: (x: PreProcessorConfig[]) => void;
+    updateClassifier: (x: ClassifierConfig) => void;
+    ...
+}
+\end{minted}
+\caption{Device Facade Interface Definition (excerpt)}
+\label{fig:device-facade-interface}
+\end{figure}
+The Interface is bound to the desired Implementation at compile time through dependency injection, and registered to the global application state on page load.
+
+The System contains a reference implementation of the Device Facade Interface, named \emph{AllPurposeFacade}, though different implementations, for example a mock implementation for utilization in Unit Tests, are conceivable.
 \subsection{Device Driver Interface}
-Describe Generalized Device Driver Interface. Point out that adding different devices is possible with this architecture.
-\subsection{Device Facade}
-Justify for a need of a Facade in Front of the raw Device Driver: Seperation of Concerns and Recording (Mock data) Functionality. Ease of Testing.
-\subsection{Device Debug Interface}
-Describe Component: Raw Device Logger, Device Status Log, Device Graphical Log
-\subsection{Graphical Hand Logger}
-THREE.JS, OrbitControls, Smoothing, Prop Configuration
-\subsection{Device Recorder}
-Record Segments of hand movements in order to aid in development, make classification errors reproducible
-\subsection{Persistence Provider}
-Describe Abstract Persistence Provider Interface
+\label{sec:impl:driver}
+Components implementing the Device Driver Interface are primarily responsible for handling the connection to the physical device from the Web Context. In case of the Leap Motion Platform, such a connection is obtained by connecting to a local Websocket Server provided by the Leap Motion Hardware Device Driver \emph{leapd} (see section \ref{sec:tech:leap-hardware-driver}). Other potential Motion Tracking Devices, such as the Microsoft Kinect Platform, provide similar methods of accessing the Hardware Device from a Web Context \cite{KinectSDK}. New Device support can thus be added to the platform by means of adding a Device Driver Implementation, and optionally providing the parts of the Platform that depend on specific Device Data with the relevant device-specific implementations, for example providing rendering methods for the new Device to the Graphical Device Logger (see \ref{sec:impl:frontend}, par. \emph{Graphical Device Logger}).
+\begin{figure}
+\begin{minted}{typescript}
+export interface DeviceDriver {
+  deviceName: string;
+  establishConnection: () => Observable<DeviceConnectionState>;
+  getTrackingData: () => Observable<GenericHandTrackingData>;
+  getClassificationData: () => Observable<ClassificationData> | undefined;
+  enableClassification: (classifiers: string[]) => void;
+  updatePreProcessors: (configs: PreProcessorConfig[]) => boolean;
+  updateClassifier: (config: ClassifierConfig) => boolean;
+  digest: (data: GenericHandTrackingData) => void;
+  ...
+}
+\end{minted}
+\caption{Device Driver Interface Definition (excerpt)}
+\label{fig:device-driver-interface}
+\end{figure}
 
-Describe Concrete Persistence Provider Interface Implementation: IndexedDB
-\subsection{Preprocessing Framework}
-Justify need for Preprocessing: Lots of useless data coming from the device. Preliminary
-clean up of data may be relevant for all classifiers
-\subsection{Classification Framework}
-Describe how Classifiers receive the preprocessed data frame stream, and transform the stream in order to emit another stream of classifications, along with relevant metadata
-\subsection{Game Execution Engine}
-Describe how Games are receiving the Classification Stream and using that in order to drive the gameplay.
+Figure \ref{fig:device-driver-interface} illustrates the methods and properties that must be implemented by Device Drivers. The \texttt{deviceName} property must be defined on the implementing class. This property acts as a unique device identifier across the whole system. If device specific implementations are required for some parts of the system, they are resolved using this identifier. The method \texttt{establishConnection} is used to signal to the DeviceDriver that a connection should be established. This method is called on system start. The method must return a \gls{RX} Observable representing the connection state to the device driver over time. After \texttt{establishConnection} has been called, the DeviceDriver should automatically attempt to reconnect to the native device driver if the connection has been lost or could not be established initially, and update the Observable on each registered change of connectivity.
 
+The \texttt{getTrackingData} method must return a \gls{RX} Observable that should emit the tracking data each time a new frame is received by the driver. The generic type of a device frame is named \texttt{GenericHandTrackingData}. The concrete implementations of the Interface may extend this type in order to explicitly type the data coming from the device. The methods \texttt{enableClassification}, \texttt{updatePreProcessors}, and \texttt{updateClassifier} are used to signal to the device driver that its internal Data Preprocessing and Classification pipelines should update. These subcomponents of the Device Driver are further explained in sections \ref{sec:impl:preprocessing} and \ref{sec:impl:classify}.
+
+Finally, it is possible to inject arbitrary data into the Device Driver by means of calling the \texttt{digest} method. The Device Driver is responsible for processing the data coming through this method in the same way that real device data is processed. This enables testing of the Device Driver without requiring a physical hardware device, and furthermore provides the technical foundation for tooling such as the Hand Recorder (section \ref{sec:impl:hand-recorder})
+
+As part of this work, two implementations of the Device Driver interface are provided: \texttt{LeapMotionDeviceDriver} and \texttt{ThreadedLeap2Driver}, both providing support for the Leap Motion Device. While the \texttt{LeapMotionDeviceDriver} only provides minimal support for the most basic functionality, the \texttt{ThreadedLeap2Driver} provides a full implementation of all required functionality. Additionally, this implementation is spawning a Web Worker (see section \ref{sec:tech-web-worker}) internally, so all data ingestion and preprocessing is performed in a separate thread, ensuring performant operation for the rest of the system.
+
+\subsection{Persistence Framework}
+\label{sec:impl:persist}
+It can be argued that the User Experience of a complex software product improves significantly if it has the capability of persisting the User Configuration over subsequent visits. If this were not the case, the User would have to reenter any settings that have been made previously each time the application is restarted. In the context of Web Applications, various possibilities exist for persisting data, such as storing and loading the data from a Backend, saving the data using Browser Cookies, or using more recent Web Specifications such as Local Storage or IndexedDB.
+
+All of these technologies have several advantages and disadvantages. In addition, it does not actually matter for the end user \emph{how} the data is stored in most scenarios, as long as it is stored in the first place. The system thus provides a \texttt{PersistenceProvider} Interface, which contains methods representing create, read, update, and delete functionality for persisted records. The System is shipped with one ready to use implementation of the \texttt{PersistenceProvider} interface, which is named \texttt{IndexedDBPersistenceProvider}, using IndexedDB as the concrete persistence technology. The \texttt{PersistenceProvider} is available to the whole application, as it is registered in the global application store (see figure \ref{fig:high-level-architecture}).
+
+
+\subsection{Stream pre-processing framework}
+\label{sec:impl:preprocessing}
+As mentioned briefly in section \ref{sec:impl:frontend}, the user has the option to configure various data pre-processors. The goal of pre-processors may be to provide more accurate data to subsequent system components, or reduce workload by stopping unnecessary data from further propagating through the system. The configuration, which pre-processors have been activated by the user and how they are configured, is supplied to the device facade, and subsequently, the device driver implementation, on each change. In the case of pre-processors, the configuration consists of an array of configuration objects, in turn consisting of a unique pre-processor identifier, and an array of pre-processor specific configuration options. The Device Driver implementation should now call the provided entrypoint to pre-processing framework, named \texttt{PreProcessingResolver}, with the received configuration. The \texttt{PreProcessingResolver} internally looks up the pre-processing identifier in the \texttt{PreProcessingRegistry}, where the identifier is resolved to a class reference implementing the desired preprocessor. The class reference is then instantiated by calling its constructor with the supplied configuration options, and returned from the resolver.
+
+The Preprocessors themselves must implement the standard \gls{RX} Operator interface. The Operator interface is primarily used internally in the rx.js library in order to implement the \gls{RX} Operators (such as \texttt{map} or \texttt{filter}), but implementing the interface in order to develop custom Operators is possible and the official recommendation for creating reusable Observable transformations \cite{RxJsOperatorCreation}. This architecture allows multiple Preprocessors to be chained, allowing for complex data cleansing and refinement pipelines to be implemented.
+
+Preprocessors may be device specific or generic. Device specific Preprocessors are allowed to access the data supplied by the device, and thus unusable for other devices which likely send a different data format,
+
+As part of this work, a number of example Preprocessors have been defined.
+
+\subsubsection{Destroy Useless Frames}
+The \texttt{DestroyUselessFramesPreProcessor} is a configuration-less Leap Motion device-specific preprocessor which stops frame propagation when the \texttt{hands[]} array of the frame is empty, and thus likely unsalvagable by the rest of the System. The \texttt{hands[]} array is empty if and only if no hand has been detected by the Leap Motion Device at that point in time. The PreProcessor reduces processing load and provides more accurate data to the rest of the system in most cases\footnote{The Leap Motion Device sometimes reports empty frames even if a hand is positioned above the sensor. As all empty frames are omitted by this preprocessor, the overall accuracy arguably increases}.
+
+\subsubsection{Drop N Frames}
+The \texttt{DropNFramesPreProcessor} is a generic preprocessors which drops every n-th frame. The variable \texttt{n} is supplied through configuration. Its primary purpose is to reduce load for slow devices at the cost of some accuracy.
+
+\subsubsection{Limit FPS}
+The \texttt{LimitFPSPreProcessor} is a generic preprocessor which throttles the device framerate to a specific number per second, as supplied through configuration.
+
+\subsection{Classification framework}
+\label{sec:impl:classify}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=14cm]{reactive-pipeline}
+    \caption{Recommended Data flow pipeline for Device Driver implementations.}
+    \label{fig:reactive-pipeline}
+\end{figure}
+
+Figure \ref{fig:reactive-pipeline} gives an overview over the recommended reactive data flow pipeline for Device Driver Implementations. Data is first ingested into a \gls{RX} Subject named \texttt{DeviceFrameSubject} from either the physical data source or the Device Drivers \texttt{digest} method. Afterwards, the data is preprocessed according to any configured preprocessing operators and afterwards fed into the \texttt{PreProcessSubject}. After Preprocessing, the data is directly relayed back to the facade, and, subsequently, the frontend, in order to provide it to relevant frontend components (i.e. Hand Loggers and Games). Additionally, the Data is fed into the \texttt{ClassifySubject}, where the Hand Exercise Classification occurs.
+
+The Classification is functioning in a similar fashion to the Preprocessing. The Device Facade receives data from the Frontend containing an Exercise ID, and Exercise specific configuration data, which is relayed to the Device Driver, where the ID is resolved to the concrete Classification Operator. However, while the Preprocessing Operators both input and output Hand Tracking Data, the Classification Operators only receive the Hand Tracking Data as Input and produce data of type \texttt{ClassificationData} as output. The \texttt{ClassificationData} type may contain information regarding what kind of Exercise has been detected, how precisely the Exercise has been executed, how likely the result was a result of cheating, and other potentially relevant, Exercise specific monitoring information. 
+
+As part of this work, an example implementation for one Exercise Classifier has been provided.
+
+\subsubsection{Thumb Abduction Exercise}
+A common exercise required in ergo therapy is to spread the thumb from the otherwise closed hand as far as possible, an exercise known as Thumb Abduction\cite[sec. 4.1.5, par. Abduction]{StudiArbeitVolzBaumotte}. By composing several \gls{RX} Operators, as illustrated in Figure \ref{fig:rx-composition}, the classification algorithm for this exercise can be provided to the framework.
+
+\begin{figure}
+\begin{minted}{haskell}
+                     bufferTime(w, f) 
+                         >>= map(hof_thumb)
+                         >>= filter(pred) 
+                         >>= map(hof_deriv) 
+                         >>= map(classify)
+\end{minted}
+\caption{Composition of \gls{RX} Operators suitable for detecting Thumb Abduction}
+\label{fig:rx-composition}
+\end{figure}
+
+Using the \gls{RX} \texttt{bufferTime($w$, $f$)} Operator, the incoming preprocessed device frames, represented by the Observable $O$, can be accumulated over a window $w$ in an array representing that timeframe. This accumulation is executed every $f$ milliseconds. The application of the Operator returns a new Observable, $O'$, emitting arrays of device frames that were emitted by $O$ in the specified time period. For example, applying \texttt{bufferTime(200, 50)} to $O$ returns a new Observable $O'$, emitting arrays containing the emissions of $O$ in the timeframe $t_1 = [0; 200] ms$, $t_2 = [50; 250] ms$, $t_3 = [100; 300] ms$, etc.
+
+By applying the \texttt{map($hof$)} Operator to $O'$, the emitted arrays of device frames can now by transformed into arrays of specific tracking information required for detecting the Thumb Abduction. The higher order function $hof$ required as an argument to the Operator must be implemented for each Device that should support the Abduction Exercise. In the provided implementation, the $hof$ transforms the Device Frames into the tip position of the first detected hand of the frame\footnote{This results in adequate detection accuracy, though transforming the device frames into angles between the thumb and index finger would obviously be the better choice when implementing a serious Thumb Abduction classifier.}. The result of the \texttt{map($hof$)} Operator is now a new Observable $O''$ emitting arrays of thumb tip positions, representing the timeframes as configured by the previous \texttt{bufferTime} transformation.
+
+By applying the \texttt{filter($pred$)} Operator to $O''$, a new Observable $O^{(3)}$ is returned containing only emissions of $O''$ that satisfy the predicate function $pred$. In this algorithm, the predicate function compares the difference between the maximum and minimum values of the emitted arrays to a variable $threshhold$, denoting the minimum distance in millimeters the thumb has to be spread in order to register as a successful exercise execution.
+
+The \texttt{map} Operator is now applied to Observable $O^{(3)}$, taking the first derivative of the emitted thumb positions. The resulting Observable, $O^{(4)}$, now emits arrays representing the change of thumb positions in the configured timeframe (thumb tip velocity).
+
+In a final application of the \texttt{map} Operator, it is first determined if a zero intersection can be found in the emissions of $O^{(4)}$. This would mean that the timeframe contains data indicating that a thumb abduction, followed by an adduction (return of the extended thumb to the closed hand) has been performed. Finally, if the zero intersection has happened near the center of the emission, the classifier reports that the Exercise has been performed\footnote{For reasons of brevity, some transformations responsible for omitting duplicate classification emissions have been left out in the textual explanation of the algorithm.}.
+
+The tolerance window used to determine if the zero intersection is in the center of the thumb velocity data, as well as all other variables mentioned in this section, are initialized with values giving good empirical classification results, and fully configurable from the frontend in order to adapt to a variety of patients and exercise variations.
+
+
+\subsection{Game Execution Framework}
+\label{sec:impl:gameexec}
+
+As mentioned briefly in section \ref{sec:impl:frontend}, after the Game List Frontend Component has determined that the system is ready to execute a game, and the User has clicked the play button, the Component hands control to the Game Execution Framework. The Framework is responsible for dynamically loading all additional libraries required by the Game Implementation, initializing the Game, as well as providing lifecycle hooks, classification data, and device tracking data to the Game.
+
+The Interface that all Game Implementations must implement is shown in Figure \ref{fig:game-interface}. 
+
+\begin{figure}
+\begin{minted}{typescript}
+      export interface Game {
+        onStart: (
+          config: GameConfiguration,
+          notifyGameOver: () => void
+        ) => Promise<void>;
+        onPause: () => Promise<void>;
+        onResume: () => Promise<void>;
+        onStop: (vm: Vue) => Promise<void>;
+      
+        onClassificationReceived: (c: ClassificationData) => void;
+        onMotionTrackingDataReceived: (m: GenericHandTrackingData) => void;
+      }
+\end{minted}
+\caption{Interface Definition for Platform Games}
+\label{fig:game-interface}
+\end{figure}
+
+Once the Game Execution Framework has finished initializing the Game and loaded its third-party dependencies, the \texttt{onStart} method is called. Two parameters are supplied to the Game Implementations at that stage. The \texttt{config} Parameter currently contains only a reference to the HTML Element where the Game should reside in. The \texttt{notifyGameOver} parameter is a function reference that the Game should call once the Game is over, in order to notify the framework of this event, and appropriate action can be taken. In the \texttt{onStart} method, the Game Developer should initialize the Game inside the supplied HTML Element Reference, start Game Execution, and optionally save the \texttt{notifyGameOver} function reference for later use.
+
+The Game Execution Framework implements a Pause functionality, which is triggered by pressing the Space Keyboard Button while playing the Game. The Game Execution Framework subsequently delegates the Information that the Player wishes to pause the Game to the Game Implementation, by calling its \texttt{onPause} or \texttt{onResume} methods. In these methods, the appropriate actions necessary to implement Pause or Resume functionality should be taken by the Game Developer.
+
+The \texttt{onStop} method will be called by the Game Execution Framework if one if these conditions is true:
+
+\begin{enumerate}
+   \item After the Game signals to the Framework that the Game is over, by calling the \texttt{notifyGameOver} method
+   \item After the Player presses the \texttt{Esc} Keyboard Button
+   \item After the Player navigates to a different Frontend Component 
+\end{enumerate}
+
+\noindent
+In the \texttt{onStop} method, the Game Developer is responsible for stopping the Game Execution, and releasing any global resources that were required for Game Execution (i.e., the \texttt{window.requestAnimationFrame()} handler, Timeouts set using \texttt{window.setTimeout()}, etc.). Additionally, the Game Developer may want to display a Game Over screen to the Player, perhaps also containing statistics, such as the final game score, or even a detailed analysis of hand movements and performance throughout the game. In order to make this possible, a reference \texttt{vm} to the Game Execution Frameworks Vue Instance is provided as a parameter to the \texttt{onStop} method. Using the capabilities of the parent Vue Instance, for example its programmatic routing facilities, accessed through the \texttt{vm.\$router} property, the Game Developer may redirect the User to any different part of the Application Frontend, where such final reporting may occur.
+
+The \texttt{onClassificationReceived} and \texttt{onMotionTrackingDataReceived} are called each time the Classification Frameworks currently active Exercise classifier reported a successful execution, and new motion tracking data was received from the Device Facade, respectively. The Game Developer can use the Data contained in \texttt{onMotionTrackingDataReceived} in any way that is useful, for example, to use the Palm Position for moving the Figure the Player controls. Every time data is received through the \texttt{onClassificationReceived} method, the Players Game Figure should execute a meaningful action, for example shooting a bullet in the context of an action game.
+
+As part of this paper, an example implementation of a Game has been provided.
+
+\subsubsection{Example Implementation: Space Shooter}
+Figure \ref{fig:screenshot-space-shooter} shows a Screenshot taken while playing the Game Space Shooter. The Game has been conceived and implemented as part of this research, using the Javascript Graphics Framework p5.js (see section \ref{sec:tech:p5js}). In the Game, the player is controlling a small, triangular spaceship, and is evading polygons, which are randomly flying towards the player from the top of the screen. The game objective is to destroy as many polygons as possible, maximizing the score displayed in the top left corner. The player can do so by executing the configured exercise successfully, which triggers the spaceship to shoot a bullet. For every polygon destroyed by the Player, 20 points are awarded. If a polygon hits the spaceship, it is destroyed and the game is over. The player can move the spaceship horizontally and vertically by moving the palm.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=15cm]{screenshot-space-shooter}
+    \caption{Screenshot of the Browser Window while playing the provided Space Shooter Game.}
+    \label{fig:screenshot-space-shooter}
+\end{figure}
