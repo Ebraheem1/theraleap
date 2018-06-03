@@ -12,8 +12,7 @@ import {
   bg1,
   changeProgressBarColor,
   drawAnim,
-  printPlayerMine,
-  resetState
+  printPlayerMine
 } from "./draw";
 import { Game, GameConfiguration } from "@/games/types";
 
@@ -56,6 +55,7 @@ export default class SpaceShipGame implements Game {
   private mY: number = 0;
   private posX: number = 240;
   private timeArray: number[] = [];
+  private state: string = "NA";
 
   public printHealth(ctx: p5) {
     ctx.imageMode(ctx.CENTER);
@@ -181,6 +181,7 @@ export default class SpaceShipGame implements Game {
     this.iP5 = new p5((s: p5) => {
       s.setup = () => {
         s.createCanvas(config.element.clientWidth, config.element.clientHeight);
+        s.frameRate(30);
         importImgs(s);
         this.gameOver = 0;
         this.enemyS = 3;
@@ -233,10 +234,17 @@ export default class SpaceShipGame implements Game {
     }
     if (c && c.actionName == "SHOT-TI") {
       this.playLaser();
-      resetState();
+      this.state = "NA";
     } else if (c && c.cheats.cheated) {
-      console.log("Na fel Cheat");
-      drawAnim(this.ctx, c.cheats.message, this.width, this.height);
+      //This is generic file, as
+      //there might be other classifiers that use the same game and they don't have
+      //any cheating cases, thus, c.cheats.cheated will always evaluate to false
+      //otherwise it should be handled differently
+      if (this.state != "NA")
+        drawAnim(this.ctx, this.state, this.width, this.height);
+      else drawAnim(this.ctx, c.cheats.message, this.width, this.height);
+    } else if (c && c.actionName == "NA-TI") {
+      this.state = "NA";
     }
     if (c && !c.cheats.cheated && c.time > 0) {
       this.timeArray.push(c.time);

@@ -216,7 +216,7 @@ export class ThumbIndexClassifier
               };
             } else {
               return {
-                actionName: "NA",
+                actionName: "NA-TI",
                 metrics: {
                   quality: 0
                 },
