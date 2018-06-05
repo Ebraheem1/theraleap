@@ -15,26 +15,28 @@
         </section>
       </md-card-content>
       <md-card-actions>
-        <play-button @click="play('space-ship')" />
-        <play-button-motion-tracking @click="play('space-ship')" />
+        <play-button-motion-tracking 
+        :validClassifiers="validClassifiers"
+        @click="play('space-ship')" />
       </md-card-actions>
 </md-card>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { Inject, Component, Prop } from "vue-property-decorator";
-import PlayButton from "@/ui/games/PlayButton.vue";
 import PlayButtonMotionTracking from "@/ui/games/PlayButtonMotionTracking.vue";
-
+import { ThumbIndexClassifierId } from "@/classify/classifiers/thumbindex";
 @Component({
   components: {
-    PlayButton,
     PlayButtonMotionTracking
   }
 })
 export default class spaceShip extends Vue {
   public play(id: string) {
     this.$router.push(`/games/play/${id}`);
+  }
+  get validClassifiers() {
+    return [ThumbIndexClassifierId];
   }
 }
 </script>
