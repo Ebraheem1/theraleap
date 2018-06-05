@@ -15,7 +15,7 @@ import {
   printPlayerMine
 } from "./draw";
 import { Game, GameConfiguration } from "@/games/types";
-
+import { doLeapFilteringTI } from "./logic";
 import { LeapDeviceFrame } from "@/devices/leapmotion/leaptrackingdata.ts";
 import { ClassificationData } from "@/classify";
 import { GenericHandTrackingData } from "@/devices";
@@ -56,6 +56,13 @@ export default class SpaceShipGame implements Game {
   private posX: number = 240;
   private timeArray: number[] = [];
   private state: string = "NA";
+  private sensor!: string;
+  private winState!: boolean;
+  private frames: any[] = [];
+  private thumbIndexAngleArrDis: number[] = [];
+  private thumbIndexAngleArrCon: number[] = [];
+  private distalMedialArr: number[] = [];
+  private medialProximalArr: number[] = [];
 
   public printHealth(ctx: p5) {
     ctx.imageMode(ctx.CENTER);
@@ -174,7 +181,22 @@ export default class SpaceShipGame implements Game {
       this.laserX = this.posX;
     }
   }
-  public async onStart(config: GameConfiguration, notifyGameOver: () => void) {
+  public handleLeapStats() {
+    //here we will do the statistics depending on the data returned from Leap motion API
+    var arr = doLeapFilteringTI(this.frames);
+    this.thumbIndexAngleArrCon = arr[0];
+    this.thumbIndexAngleArrDis = arr[1];
+    this.distalMedialArr = arr[2];
+    this.medialProximalArr = arr[3];
+    if (this.timeArray.length > 0) {
+      var maxTime = Math.max(...this.timeArray);
+      maxTime /= 1000;
+      this.timeArray = [Number(Number.parseFloat("" + maxTime).toPrecision(4))];
+    } else {
+      this.timeArray = [0];
+    }
+  }
+  public async onStart(config: GameConfiguration, notifyGameState: () => void) {
     this.width = config.element.clientWidth;
     this.height = config.element.clientHeight;
     this.mY = this.height + 1;
@@ -211,34 +233,69 @@ export default class SpaceShipGame implements Game {
           s.image(sL, this.sl2x, this.sl2y);
           s.image(sL, this.sl3x, this.sl3y);
           this.printHealth(s);
-        } else if (this.pointDis >= 2000 && this.gameOver != 1) {
-          var condition = this.pointDis;
+        } else if (this.pointDis >= 2000 || this.gameOver == 1) {
+          this.winState = this.pointDis >= 2000;
           //this assignment to prevent the draw function to enter this if condition again
           this.pointDis = -1;
+
+          notifyGameState();
+          s.remove();
         }
       };
     }, config.element);
   }
-  public async onStop(vm: Vue) {}
+  public async onStop(vm: Vue) {
+    if (this.sensor == "LEAP") {
+      this.handleLeapStats();
+    }
+    var tmp = this.timeArray;
+    this.timeArray = [];
+    var flag = false;
+    if (this.winState) flag = true;
+    vm.$router.push({
+      name: "game-over",
+      params: {
+        gameIdentifier: "space-ship",
+        data: [
+          "TI-LEAP",
+          flag,
+          tmp[0],
+          this.thumbIndexAngleArrCon,
+          this.thumbIndexAngleArrDis,
+          this.distalMedialArr,
+          this.medialProximalArr
+        ]
+      } as any
+    });
+  }
 
   public async onPause() {
-    //this.paused = true;
+    this.paused = true;
   }
 
   public async onResume() {
-    //this.paused = false;
+    this.paused = false;
   }
 
   public onClassificationReceived(c: ClassificationData) {
-    if (this.pointDis >= 2000 || this.pointDis == -1 || this.gameOver == 1) {
+    if (
+      this.pointDis >= 2000 ||
+      this.pointDis == -1 ||
+      this.gameOver == 1 ||
+      this.paused
+    ) {
       return;
     }
-    if (c && c.actionName == "SHOT-TI") {
+    if (c && c.actionName == "SHOT-TI-L") {
+      if (!this.sensor) {
+        this.sensor = "LEAP";
+      }
       this.playLaser();
       this.state = "NA";
       if (this.timeArray.length < 30000 && c.time > 0) {
         this.timeArray.push(c.time);
       }
+      if (frames.length < 30000) this.frames.push(c.extra);
     } else if (c && c.cheats.cheated) {
       //This is generic file, as
       //there might be other classifiers that use the same game and they don't have
@@ -247,8 +304,12 @@ export default class SpaceShipGame implements Game {
       if (this.state != "NA")
         drawAnim(this.ctx, this.state, this.width, this.height);
       else drawAnim(this.ctx, c.cheats.message, this.width, this.height);
-    } else if (c && c.actionName == "NA-TI") {
+    } else if (c && c.actionName == "NA-TI-L") {
+      if (!this.sensor) {
+        this.sensor = "LEAP";
+      }
       this.state = "NA";
+      if (frames.length < 30000) this.frames.push(c.extra);
     }
   }
   public onMotionTrackingDataReceived(m: GenericHandTrackingData) {

@@ -28,7 +28,12 @@ export default class ClassifyBadge extends Vue {
       .getClassificationStream();
     if (stream) {
       stream.subscribe(classification => {
-        this.classificationHappened = true;
+        if (
+          !classification.cheats.cheated &&
+          (classification.actionName == "SHOT-TI-L" ||
+            classification.actionName == "ONE_SHOT")
+        )
+          this.classificationHappened = true;
       });
     }
   }

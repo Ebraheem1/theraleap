@@ -111,7 +111,8 @@ export class ThumbIndexClassifier
                   cheated: true,
                   message: "Please, Raise your hand a bit more :)"
                 },
-                time: -1
+                time: -1,
+                extra: undefined
               };
             } else if (Math.floor(rotationAngle) > 20) {
               this.startCheat =
@@ -125,7 +126,8 @@ export class ThumbIndexClassifier
                   cheated: true,
                   message: "Rotate your hand to the right to be flat."
                 },
-                time: -1
+                time: -1,
+                extra: undefined
               };
             } else if (Math.floor(rotationAngle) < -20) {
               this.startCheat =
@@ -139,7 +141,8 @@ export class ThumbIndexClassifier
                   cheated: true,
                   message: "Rotate your hand to the left to be flat."
                 },
-                time: -1
+                time: -1,
+                extra: undefined
               };
             } else if (wristAngle > 20) {
               var tip = frame.data.pointables[2].dipPosition;
@@ -162,7 +165,8 @@ export class ThumbIndexClassifier
                   cheated: true,
                   message: msg
                 },
-                time: -1
+                time: -1,
+                extra: undefined
               };
             } else if (hand.grabStrength > 0.1) {
               this.startCheat =
@@ -176,7 +180,8 @@ export class ThumbIndexClassifier
                   cheated: true,
                   message: "Please Stretch Your Fingers."
                 },
-                time: -1
+                time: -1,
+                extra: undefined
               };
             }
             if (this.startCheat != -1) {
@@ -198,7 +203,7 @@ export class ThumbIndexClassifier
                 this.cheatedTime = 0;
               }
               return {
-                actionName: "SHOT-TI",
+                actionName: "SHOT-TI-L",
                 metrics: {
                   quality: 0
                 },
@@ -206,11 +211,12 @@ export class ThumbIndexClassifier
                   cheated: false,
                   message: "NA"
                 },
-                time: timetaken
+                time: timetaken,
+                extra: frame.data
               };
             } else {
               return {
-                actionName: "NA-TI",
+                actionName: "NA-TI-L",
                 metrics: {
                   quality: 0
                 },
@@ -218,7 +224,8 @@ export class ThumbIndexClassifier
                   cheated: false,
                   message: "NA"
                 },
-                time: timetaken
+                time: timetaken,
+                extra: frame.data
               };
             }
           } else if (frame.data.hands.length == 0) {
@@ -231,7 +238,8 @@ export class ThumbIndexClassifier
                 cheated: true,
                 message: "No Hand"
               },
-              time: timetaken
+              time: timetaken,
+              extra: undefined
             };
           } else {
             return undefined;

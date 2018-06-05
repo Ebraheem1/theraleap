@@ -91,7 +91,8 @@ export class ThumbSpreadClassifier
                 cheated: false,
                 message: "NA"
               },
-              time: -1
+              time: -1,
+              extra: undefined
             };
           } else {
             return undefined;
