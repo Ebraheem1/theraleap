@@ -86,6 +86,7 @@ export class ThumbSpreadClassifier
               actionName: "ONE_SHOT",
               metrics: {
                 quality: 0,
+                time: 0,
                 cheats: {
                   cheated: false,
                   message: "Hopeless Case"

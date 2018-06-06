@@ -9,6 +9,7 @@ export interface ClassificationData {
 
 export interface ClassificationMetrics {
   quality: number;
+  time: number;
   cheats: ClassificationCheats;
 }
 

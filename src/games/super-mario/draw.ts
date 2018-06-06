@@ -85,6 +85,16 @@ export const drawAnim = (width: number, height: number, ctx: p5) => {
   } else {
     raisehandlastframe = 0;
   }
+
+  var color = ctx.color(0, 0, 0);
+  var fontSize = 25;
+  ctx.fill(color);
+  ctx.textSize(fontSize);
+  ctx.text(
+    "Please, Raise your hand a bit more :)",
+    0.025 * width,
+    0.178 * height
+  );
 };
 
 export const checkHeart = (width: number, height: number, ctx: p5) => {

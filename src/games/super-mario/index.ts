@@ -40,6 +40,13 @@ export default class SuperMarioGame implements Game {
   private paused: boolean = false;
   private game: number = 0;
 
+  private maxAngleUpward: number = 0;
+  private maxAngleDownward: number = 0;
+  private wristAnglesArr: number[] = [];
+  private maxTime: number = 0;
+  // //This array holds the times required for the transition between upward movement and downward movements
+  // private arr: any[] = [];
+
   async onStart(
     config: GameConfiguration,
     notifyGameOver: (cb: (vm: Vue) => void) => void
@@ -62,13 +69,6 @@ export default class SuperMarioGame implements Game {
         if (this.paused) {
           return;
         }
-        drawBackground(this.width, this.height, s);
-        drawMario(this.marioX, this.marioY, s);
-        if (this.cheated) drawAnim(this.width, this.height, s);
-        checkHeart(this.width, this.height, s);
-        checkFlower(this.width, this.height, s);
-        doBezier();
-        drawSteel(s);
         this.marioX = collisionCheck(this.marioX, this.marioY, this.width);
         this.game = checkGameover();
 
@@ -77,7 +77,13 @@ export default class SuperMarioGame implements Game {
         } else if (this.game == -1) {
           //lose
         } else {
-          //draw scenes
+          drawBackground(this.width, this.height, s);
+          drawMario(this.marioX, this.marioY, s);
+          if (this.cheated) drawAnim(this.width, this.height, s);
+          checkHeart(this.width, this.height, s);
+          checkFlower(this.width, this.height, s);
+          doBezier();
+          drawSteel(s);
         }
 
         // if (this.gameOver) {
@@ -109,15 +115,28 @@ export default class SuperMarioGame implements Game {
   }
 
   onClassificationReceived(c: ClassificationData) {
-    // console.log(c);
-    if (c.actionName == "upwards") {
-      this.marioY -= 0.25;
-      this.cheated = false;
-    } else if (c.actionName == "downwards") {
-      this.marioY += 0.25;
-      this.cheated = false;
-    } else if (c.actionName == "cheated") {
+    if (c.actionName == "cheated") {
       this.cheated = true;
+    } else {
+      var wristAngle = c.metrics.quality;
+      this.wristAnglesArr.push(
+        c.actionName == "downwards" ? -1 * wristAngle : wristAngle
+      );
+
+      if (c.actionName == "upwards") {
+        // console.log("time taken upwards", c.metrics.time);
+        if (wristAngle > this.maxAngleUpward) this.maxAngleUpward = wristAngle;
+        this.maxTime = Math.max(this.maxTime, c.metrics.time);
+        this.marioY -= this.marioY > 30 ? 0.5 : 0;
+        this.cheated = false;
+      } else if (c.actionName == "downwards") {
+        // console.log("time taken downwards", c.metrics.time);
+        if (wristAngle > this.maxAngleDownward)
+          this.maxAngleDownward = wristAngle;
+        this.maxTime = Math.max(this.maxTime, c.metrics.time);
+        this.marioY += this.marioY <= this.height - 30 ? 0.5 : 0;
+        this.cheated = false;
+      }
     }
   }
 
