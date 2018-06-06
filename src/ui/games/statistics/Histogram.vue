@@ -49,7 +49,6 @@ export default class ScatterPlot extends Vue {
     // xAxis array is the angles.
     // the first cell contains the name that represents the x-axis.
     var xAxis = [];
-    xAxis.push("Angles");
     // each point in x-axis is the [angle, angle+4] where angle is divisible by 5
     for (var i = 1; i < 180; i += 5) {
       var s = i + " to " + (i + 4);

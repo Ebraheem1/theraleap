@@ -15,8 +15,7 @@
         </section>
       </md-card-content>
       <md-card-actions>
-        <play-button-motion-tracking 
-        :validClassifiers="validClassifiers"
+        <play-button-motion-tracking
         @click="play('space-ship')" />
       </md-card-actions>
 </md-card>
@@ -34,9 +33,6 @@ import { ThumbIndexClassifierId } from "@/classify/classifiers/thumbindex";
 export default class spaceShip extends Vue {
   public play(id: string) {
     this.$router.push(`/games/play/${id}`);
-  }
-  get validClassifiers() {
-    return [ThumbIndexClassifierId];
   }
 }
 </script>

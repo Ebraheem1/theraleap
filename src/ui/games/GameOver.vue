@@ -11,7 +11,7 @@
         <section v-if="score !== undefined" class="highscore">
             Your final Score: <s-code>{{ score.toString().padStart(5, '0') }}</s-code> points.
         </section>
-        <section v-if="data !== undefined" class="highscore">
+        <section v-if="showTime" class="highscore">
             Your time to reach Threshold: <s-code>{{ data[2].toString().padStart(5, '0') }}</s-code> sec(s).
         </section>
         <scatter-plot v-if="chartAppearance"
@@ -83,6 +83,15 @@ export default class GameOver extends Vue {
     }
     return ["You Lose!", "Better Luck next time!"];
   }
+  get showTime() {
+    if (
+      this.data !== undefined &&
+      this.data[0] == "TI-LEAP" &&
+      this.data[2] > 0
+    )
+      return true;
+    return false;
+  }
 
   get scatterColumns() {
     if (this.data !== undefined && this.data[0] == "TI-LEAP") {
@@ -114,10 +123,7 @@ export default class GameOver extends Vue {
   }
 
   public mounted() {
-    if (this.data !== undefined) {
-      if (this.data[0] == "TI-LEAP") {
-      }
-    } else if (this.statistics) {
+    if (this.statistics && this.data === undefined) {
       const p: { data: number; index: number }[] = [];
       this.statistics.forEach((d: LeapHandTrackingData, idx) => {
         const pointable = getPointableWithId(d.data.pointables, 0);

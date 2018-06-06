@@ -248,6 +248,9 @@ export default class SpaceShipGame implements Game {
     if (this.sensor == "LEAP") {
       this.handleLeapStats();
     }
+    if (this.timeArray.length == 0) {
+      this.timeArray = [0];
+    }
     var tmp = this.timeArray;
     this.timeArray = [];
     var flag = false;

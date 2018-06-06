@@ -20,10 +20,13 @@ import { ThumbIndexClassifierId } from "@/classify/classifiers/thumbindex";
 })
 export default class GameList extends Vue {
   get spaceShipValidClassifiers() {
-    var validClassifiers = [ThumbIndexClassifierId];
-    var activeClassifier = classifier.getActiveClassifier(this.$store)
-      .identifier;
-    return validClassifiers.includes(activeClassifier);
+    if (classifier.getActiveClassifier(this.$store) !== undefined) {
+      var validClassifiers = [ThumbIndexClassifierId];
+      var activeClassifier = classifier.getActiveClassifier(this.$store)
+        .identifier;
+      return validClassifiers.includes(activeClassifier);
+    }
+    return true;
   }
 }
 </script>
