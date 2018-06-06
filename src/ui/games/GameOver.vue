@@ -1,8 +1,8 @@
 <template>
     <section id="GameOver">
         <section class="game-over-message">
-            <h1>You Lose!</h1>
-            <h2>Better Luck next time!</h2>
+            <h1>{{ headerText[0] }}</h1>
+            <h2>{{ headerText[1] }}</h2>
             <span>
                 <play-button :name="'Retry'" @click="$router.push(`/games/play/${gameIdentifier}`)"></play-button>
             </span>
@@ -11,6 +11,20 @@
         <section v-if="score !== undefined" class="highscore">
             Your final Score: <s-code>{{ score.toString().padStart(5, '0') }}</s-code> points.
         </section>
+        <section v-if="data !== undefined" class="highscore">
+            Your time to reach Threshold: <s-code>{{ data[2].toString().padStart(5, '0') }}</s-code> sec(s).
+        </section>
+        <section v-if="data !== undefined && data[0] == 'WA-LEAP'" class="highscore">
+            Your maximum angle reached Upwards: <s-code>{{ Number.parseFloat(data[3]).toPrecision(4) }}</s-code> degrees.
+        </section>
+        <section v-if="data !== undefined && data[0] == 'WA-LEAP'" class="highscore">
+            Your maximum angle reached Downwards: <s-code>{{ Number.parseFloat(data[4]).toPrecision(4) }}</s-code> degrees.
+        </section>
+        <scatter-plot v-if="chartAppearance"
+        :columns="scatterColumns" :identifier="identifierChangeScatter"></scatter-plot>
+        <histogram v-if="chartAppearance"
+        :columns="histogramColumns"
+        :identifier="identifierChangeHistogram"></histogram>
         <section v-if="statistics !== undefined">
           Your Thumb Positions throughout the Game: (GUC Students, your turn!)
           <svg ref="svg" width="500" height="430">
@@ -23,13 +37,13 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { Inject, Component, Prop } from "vue-property-decorator";
-
+import { Inject, Component, Prop, Watch } from "vue-property-decorator";
 import * as d3 from "d3";
-
 import { GenericHandTrackingData } from "@/devices";
 import PlayButton from "@/ui/games/PlayButton.vue";
 import Code from "@/ui/utils/Code.vue";
+import ScatterPlot from "@/ui/games/statistics/ScatterPlot.vue";
+import Histogram from "@/ui/games/statistics/Histogram.vue";
 import { LeapHandTrackingData, LeapPointable } from "devices/leapmotion";
 
 const getPointableWithId = (
@@ -49,7 +63,9 @@ const getPointableWithId = (
 @Component({
   components: {
     PlayButton,
-    "s-code": Code
+    "s-code": Code,
+    "scatter-plot": ScatterPlot,
+    histogram: Histogram
   }
 })
 export default class GameOver extends Vue {
@@ -64,8 +80,63 @@ export default class GameOver extends Vue {
 
   public line: string | null = null;
 
+  @Prop({ type: Array, required: false })
+  public data: any[] | undefined;
+
+  get headerText() {
+    if (this.data !== undefined && this.data[1]) {
+      return ["Congratulations!", "Good Job!"];
+    }
+    return ["You Lose!", "Better Luck next time!"];
+  }
+
+  get scatterColumns() {
+    if (this.data !== undefined) {
+      if (this.data[0] == "TI-LEAP") return this.data[3];
+      if (this.data[0] == "WA-LEAP") {
+        return this.data[5];
+      }
+    }
+  }
+
+  get histogramColumns() {
+    if (this.data !== undefined && this.data[0] == "TI-LEAP") {
+      return [this.data[4], this.data[5], this.data[6]];
+    }
+  }
+
+  get identifierChangeScatter() {
+    if (
+      this.data !== undefined &&
+      (this.data[0] == "TI-LEAP" || this.data[0] == "WA-LEAP")
+    ) {
+      return this.data[0];
+    }
+  }
+
+  get identifierChangeHistogram() {
+    if (this.data !== undefined && this.data[0] == "TI-LEAP") {
+      console.log("histo");
+      return this.data[0];
+    }
+  }
+
+  get chartAppearance() {
+    if (
+      this.data !== undefined &&
+      ((this.data[0] == "TI-LEAP" && this.data[3].length > 2) ||
+        this.data[0] == "WA-LEAP")
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   public mounted() {
-    if (this.statistics) {
+    if (this.data !== undefined) {
+      if (this.data[0] == "TI-LEAP" || this.data[0] == "WA-LEAP") {
+      }
+    } else if (this.statistics) {
       const p: { data: number; index: number }[] = [];
       this.statistics.forEach((d: LeapHandTrackingData, idx) => {
         const pointable = getPointableWithId(d.data.pointables, 0);

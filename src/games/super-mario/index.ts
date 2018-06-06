@@ -39,6 +39,7 @@ export default class SuperMarioGame implements Game {
   private gameOver: boolean = false;
   private paused: boolean = false;
   private game: number = 0;
+  private winState!: boolean;
 
   private maxAngleUpward: number = 0;
   private maxAngleDownward: number = 0;
@@ -47,10 +48,7 @@ export default class SuperMarioGame implements Game {
   // //This array holds the times required for the transition between upward movement and downward movements
   // private arr: any[] = [];
 
-  async onStart(
-    config: GameConfiguration,
-    notifyGameOver: (cb: (vm: Vue) => void) => void
-  ) {
+  async onStart(config: GameConfiguration, notifyGameState: () => void) {
     this.width = config.element.clientWidth;
     this.height = config.element.clientHeight;
     this.marioX = config.element.clientWidth * 0.15;
@@ -72,10 +70,11 @@ export default class SuperMarioGame implements Game {
         this.marioX = collisionCheck(this.marioX, this.marioY, this.width);
         this.game = checkGameover();
 
-        if (this.game == 1) {
-          //win
-        } else if (this.game == -1) {
-          //lose
+        //1 -> win, -1 -> lose
+        if (this.game == 1 || this.game == -1) {
+          this.winState = this.game == 1 ? true : false;
+          notifyGameState();
+          s.remove();
         } else {
           drawBackground(this.width, this.height, s);
           drawMario(this.marioX, this.marioY, s);
@@ -85,25 +84,27 @@ export default class SuperMarioGame implements Game {
           doBezier();
           drawSteel(s);
         }
-
-        // if (this.gameOver) {
-        //   notifyGameOver((vm: Vue) => {
-        //     vm.$router.push("/games/list");
-        //   });
-        //   s.remove();
-        // } else {
-        //   drawScene(s);
-        //   drawScore(this.score, s);
-        //   drawSpaceShip(this.x, this.y, s);
-        //   drawSpaceRocks(this.spaceRocks, s);
-        //   drawBullets(this.bullets, s);
-        // }
       };
     }, config.element);
   }
 
-  async onStop() {
-    console.log("onStop");
+  public async onStop(vm: Vue) {
+    var flag = false;
+    if (this.winState) flag = true;
+    vm.$router.push({
+      name: "game-over",
+      params: {
+        gameIdentifier: "super-mario",
+        data: [
+          "WA-LEAP",
+          flag,
+          this.maxTime,
+          this.maxAngleUpward,
+          this.maxAngleDownward,
+          this.wristAnglesArr
+        ]
+      } as any
+    });
   }
 
   async onPause() {
@@ -115,7 +116,7 @@ export default class SuperMarioGame implements Game {
   }
 
   onClassificationReceived(c: ClassificationData) {
-    if (c.actionName == "cheated") {
+    if (c.cheats.cheated) {
       this.cheated = true;
     } else {
       var wristAngle = c.metrics.quality;
@@ -126,14 +127,14 @@ export default class SuperMarioGame implements Game {
       if (c.actionName == "upwards") {
         // console.log("time taken upwards", c.metrics.time);
         if (wristAngle > this.maxAngleUpward) this.maxAngleUpward = wristAngle;
-        this.maxTime = Math.max(this.maxTime, c.metrics.time);
+        this.maxTime = Math.max(this.maxTime, c.time);
         this.marioY -= this.marioY > 30 ? 0.5 : 0;
         this.cheated = false;
       } else if (c.actionName == "downwards") {
         // console.log("time taken downwards", c.metrics.time);
         if (wristAngle > this.maxAngleDownward)
           this.maxAngleDownward = wristAngle;
-        this.maxTime = Math.max(this.maxTime, c.metrics.time);
+        this.maxTime = Math.max(this.maxTime, c.time);
         this.marioY += this.marioY <= this.height - 30 ? 0.5 : 0;
         this.cheated = false;
       }

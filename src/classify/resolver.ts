@@ -12,11 +12,17 @@ import {
   WristAngleClassifier
 } from "@/classify/classifiers/wristAngle";
 
+import {
+  ThumbIndexClassifier,
+  ThumbIndexClassifierId
+} from "@/classify/classifiers/thumbindex";
+
 export const ClassifierRegistry: {
   [_: string]: { new (...args: any[]): Operator<any, any> };
 } = {
   [ThumbSpreadClassifierId]: ThumbSpreadClassifier,
-  [WristAngleClassifierId]: WristAngleClassifier
+  [WristAngleClassifierId]: WristAngleClassifier,
+  [ThumbIndexClassifierId]: ThumbIndexClassifier
 };
 
 export const ClassifyResolver = (

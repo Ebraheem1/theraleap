@@ -5,7 +5,10 @@
       :config="classifierConfigState.ThumbSpreadClassifier"
       @classifierSelectionUpdated="classifierSelectionUpdated"
     />
-
+    <thumb-index-classifier
+      :config="classifierConfigState.ThumbIndexClassifier"
+      @classifierSelectionUpdated="classifierSelectionUpdated"
+    />
     <wrist-angle-classifier
       :stream="examples.WristAngleClassifier.stream"
       :config="classifierConfigState.WristAngleClassifier"
@@ -23,6 +26,8 @@ import { Classifier, ClassifierRegistry } from "@/classify";
 
 import GraphicalHandLogger from "@/ui/graphics/GraphicalHandLogger.vue";
 import ThumbSpreadClassifier from "@/ui/classify/ThumbSpreadClassifier.vue";
+//This import to add the classifier view
+import ThumbIndexClassifier from "@/ui/classify/ThumbIndexClassifier.vue";
 import WristAngleClassifier from "@/ui/classify/WristAngleClassifier.vue";
 import { HandTrackRecording } from "@/state/modules/record";
 import { createFakeDeviceStream, GenericHandTrackingData } from "@/devices";
@@ -37,8 +42,9 @@ import { getDeviceFacade } from "@/state/modules/device";
 
 @Component({
   components: {
-    ThumbSpreadClassifier,
-    WristAngleClassifier
+    "thumb-spread-classifier": ThumbSpreadClassifier,
+    "thumb-index-classifier": ThumbIndexClassifier,
+    "wrist-angle-classifier": WristAngleClassifier
   }
 })
 export default class Classifiers extends Vue {

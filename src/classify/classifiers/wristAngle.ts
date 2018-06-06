@@ -98,13 +98,14 @@ export class WristAngleClassifier
             return {
               actionName: "cheated",
               metrics: {
-                quality: 0,
-                time: 0,
-                cheats: {
-                  cheated: true,
-                  message: "Please, Raise your hand a bit more :)"
-                }
-              }
+                quality: 0
+              },
+              cheats: {
+                cheated: true,
+                message: "Please, Raise your hand a bit more :)"
+              },
+              time: -1,
+              extra: undefined
             };
           }
 
@@ -123,28 +124,23 @@ export class WristAngleClassifier
               var now = new Date();
               time =
                 now.getTime() - this.timeStart.getTime() - this.cheatingTime;
-              console.log(
-                now.getTime(),
-                this.timeStart.getTime(),
-                this.cheatingTime
-              );
               // this.timeStart = new Date();
               this.cheatingTime = 0;
               this.lastUpwards = true;
               this.lastDownwards = false;
               this.stopHolding = false;
             }
-
             return {
               actionName: "upwards",
               metrics: {
-                quality: wristAngle,
-                time: time,
-                cheats: {
-                  cheated: false,
-                  message: "NA"
-                }
-              }
+                quality: wristAngle
+              },
+              cheats: {
+                cheated: false,
+                message: "NA"
+              },
+              time: time,
+              extra: undefined
             };
           } else if (
             !upDirection &&
@@ -164,35 +160,35 @@ export class WristAngleClassifier
               this.lastDownwards = true;
               this.stopHolding = false;
             }
-
             return {
               actionName: "downwards",
               metrics: {
-                quality: wristAngle,
-                time: time,
-                cheats: {
-                  cheated: false,
-                  message: "NA"
-                }
-              }
+                quality: wristAngle
+              },
+              cheats: {
+                cheated: false,
+                message: "NA"
+              },
+              time: time,
+              extra: undefined
             };
           } else {
             if (!this.stopHolding) {
               this.stopHolding = true;
               if (this.timeStart == undefined) this.cheatingTime = 0;
               this.timeStart = new Date();
-              console.log("dkhal");
             }
             return {
               actionName: "no gesture detected",
               metrics: {
-                quality: upDirection ? wristAngle : -1 * wristAngle,
-                time: 0,
-                cheats: {
-                  cheated: false,
-                  message: "NA"
-                }
-              }
+                quality: upDirection ? wristAngle : -1 * wristAngle
+              },
+              cheats: {
+                cheated: false,
+                message: "NA"
+              },
+              time: -1,
+              extra: undefined
             };
           }
         }),

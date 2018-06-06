@@ -3,7 +3,9 @@ import { ActionContext, Store } from "vuex";
 import { getStoreAccessors } from "vuex-typescript";
 
 import { ThumbSpreadClassifierId } from "@/classify/classifiers/thumbspread";
+import { ThumbIndexClassifierId } from "@/classify/classifiers/thumbindex";
 import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
+
 import { RootState } from "@/state/store";
 
 export interface ClassifierState {
@@ -12,7 +14,6 @@ export interface ClassifierState {
 
 export const classifier = {
   namespaced: true,
-
   state: {
     classifiers: {
       ThumbSpreadClassifier: {
@@ -54,6 +55,16 @@ export const classifier = {
                 .lowerAngleThreshold,
               classifier.state.classifiers.WristAngleClassifier.handType
             ]
+          };
+        }
+      },
+      ThumbIndexClassifier: {
+        enabled: false,
+        threshold: 30,
+        constructConfig: () => {
+          return {
+            identifier: ThumbIndexClassifierId,
+            args: [classifier.state.classifiers.ThumbIndexClassifier.threshold]
           };
         }
       }

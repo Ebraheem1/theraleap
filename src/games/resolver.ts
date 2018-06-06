@@ -8,5 +8,9 @@ export const GameResolveMapping: { [key: string]: () => Promise<any> } = {
   "super-mario": () =>
     import("@/games/super-mario").then((imp: any) => {
       return imp.default;
+    }),
+  "space-ship": () =>
+    import("@/games/space-ship").then((imp: any) => {
+      return imp.default;
     })
 };
