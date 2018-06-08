@@ -54,13 +54,24 @@ export class WristAngleClassifier
           if (frame.data.hands.length == 0) {
             if (
               this.stopHolding &&
-              this.timeStart != undefined &&
+              this.timeStart !== undefined &&
               !this.cheatingFlag
             ) {
               this.cheatingFlag = true;
               this.startCheating = new Date();
             }
-            return;
+            return {
+              actionName: "cheated",
+              metrics: {
+                quality: 0
+              },
+              cheats: {
+                cheated: true,
+                message: "No Hand Detected"
+              },
+              time: -1,
+              extra: undefined
+            };
           }
           // if (frame.data.hands[0].confidence < 0.7) return;
 
@@ -68,13 +79,24 @@ export class WristAngleClassifier
           if (hand.type != this.handType) {
             if (
               this.stopHolding &&
-              this.timeStart != undefined &&
+              this.timeStart !== undefined &&
               !this.cheatingFlag
             ) {
               this.cheatingFlag = true;
               this.startCheating = new Date();
             }
-            return;
+            return {
+              actionName: "cheated",
+              metrics: {
+                quality: 0
+              },
+              cheats: {
+                cheated: true,
+                message: "Wrong Hand Type"
+              },
+              time: -1,
+              extra: undefined
+            };
           }
 
           var handDirection = hand.direction;
@@ -91,7 +113,11 @@ export class WristAngleClassifier
           // var wristAngleNumber = Number.parseFloat(wristAngle).toPrecision(4);
 
           if (cheated) {
-            if (this.timeStart != undefined && !this.cheatingFlag) {
+            if (
+              this.stopHolding &&
+              this.timeStart != undefined &&
+              !this.cheatingFlag
+            ) {
               this.cheatingFlag = true;
               this.startCheating = new Date();
             }
@@ -102,7 +128,7 @@ export class WristAngleClassifier
               },
               cheats: {
                 cheated: true,
-                message: "Please, Raise your hand a bit more :)"
+                message: "Raise"
               },
               time: -1,
               extra: undefined
@@ -112,7 +138,6 @@ export class WristAngleClassifier
           if (this.cheatingFlag) {
             this.cheatingFlag = false;
             var now = new Date();
-            // var tmp = now - this.startCheating;
             this.cheatingTime += now.getTime() - this.startCheating.getTime();
           }
           if (upDirection && wristAngle >= this.detectionUpperAngleThreshold) {
@@ -175,7 +200,7 @@ export class WristAngleClassifier
           } else {
             if (!this.stopHolding) {
               this.stopHolding = true;
-              if (this.timeStart == undefined) this.cheatingTime = 0;
+              if (this.timeStart === undefined) this.cheatingTime = 0;
               this.timeStart = new Date();
             }
             return {
@@ -197,5 +222,3 @@ export class WristAngleClassifier
       .subscribe(subscriber);
   }
 }
-
-//

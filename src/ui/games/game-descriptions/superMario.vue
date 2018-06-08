@@ -15,7 +15,6 @@
       </section>
     </md-card-content>
     <md-card-actions>
-      <play-button @click="play('super-mario')" />
       <play-button-motion-tracking @click="play('super-mario')" />
     </md-card-actions>
   </md-card>
@@ -26,7 +25,6 @@ import Vue from "vue";
 import { Inject, Component, Prop } from "vue-property-decorator";
 import PlayButton from "@/ui/games/PlayButton.vue";
 import PlayButtonMotionTracking from "@/ui/games/PlayButtonMotionTracking.vue";
-import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
 
 @Component({
   components: {
@@ -37,9 +35,6 @@ import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
 export default class superMario extends Vue {
   public play(id: string) {
     this.$router.push(`/games/play/${id}`);
-  }
-  get validClassifiers() {
-    return [WristAngleClassifierId];
   }
 }
 </script>

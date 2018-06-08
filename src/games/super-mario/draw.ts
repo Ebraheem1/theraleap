@@ -43,8 +43,8 @@ export const initializeData = (width: number, height: number) => {
   giftX = width + 60;
   giftY = 0.167 * height;
 
-  flowerX = window.innerWidth + 60;
-  flowerY = 0.67 * window.innerHeight;
+  flowerX = width + 60;
+  flowerY = 0.67 * height;
 };
 
 export const loadImages = (ctx: p5) => {
@@ -160,5 +160,3 @@ export const enableFlowerTaken = () => {
 export const enablSteelTaken = () => {
   steelTaken = true;
 };
-
-//

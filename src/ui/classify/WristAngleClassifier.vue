@@ -2,7 +2,7 @@
     <md-card>
       <md-card-header>
         <div class="md-title">Wrist Angle Classifier</div>
-        <div class="md-subhead">Naive Spread detection soley based on virtualized Thumb position</div>
+        <div class="md-subhead">Detection based on the angle between the hand and wrist reaching the thresholds</div>
         <div class="enabled">
           <md-switch
             :value="!wristAngleClassifierEnabled"
@@ -12,6 +12,19 @@
       </md-card-header>
 
       <md-card-content>
+        <md-subheader>Classifier Description</md-subheader>
+        <section>
+          <h1>General</h1>
+          This classifier deals with patients recovering from wrist problems. It aims to detect the angle between the hand and the wrist and activated when such angle reaches a certain threshold. It also measures the time taken to reach a such threshold.
+          <h1>Algorithm</h1>
+          The classifier works as follows, when the hand is detected it first computes the angle between the hand and wrist by taking the dot product between the direction of the hand and the direction of the wrist. In order to detect the direction of the hand/wrist angle (whether upward or downward direction), the position of middle finger’s tip is compared with the position of middle finger’s metacarpal. If the tip position is greater than the metacarpal position then it’s an upward direction, otherwise it will be a downward direction. If an upward direction is detected and the hand/wrist angle reached or exceeded the <s-code>upwardThreshold</s-code>, then the classifier is activated (and the same goes with the downward direction). In order to have more accurate data from the leap, the hand should not be too close to the leap sensor, so before the classifier is activated such value is checked on. Also before everything, the detected hand must be the same as the <s-code>handType</s-code> (left or right). Such classifier also calculates how long the transition between the <s-code> upward and downward threshold</s-code> (and vice versa) is, discarding the time taken if the hand is not detected, the height of hand from leap is small or the hand types are not the same.
+          <h1>Performance Metric</h1>
+          This classifier includes no Performance Metric.
+          <h1>Cheat Metric</h1>
+          This classifier includes cheat metrics as stated in the Algorithm sub-section above. Those Metrics are (<s-code>height of the hand from the leap device</s-code>) and (<s-code>different hand type</s-code>).
+          <h1>Room for Improvement</h1>
+          The most fundamental flow currently is when the hand is kept on hold in the upwards or downwards direction for a long time, the leap sensor starts detecting wrong data.
+        </section>
         <md-subheader>Classifier Settings</md-subheader>
         <md-divider></md-divider>
         <md-field>

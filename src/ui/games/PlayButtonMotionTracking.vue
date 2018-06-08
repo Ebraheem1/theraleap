@@ -21,17 +21,7 @@ import * as classifier from "@/state/modules/classifiers";
   components: {}
 })
 export default class PlayButtonMotionTracking extends Vue {
-  @Prop({ required: false })
-  public validClassifiers!: string[];
-
   public get classifierConfigured() {
-    if (this.validClassifiers !== undefined) {
-      var condition = this.validClassifiers.includes(
-        classifier.getActiveClassifier(this.$store).identifier
-      );
-      return condition;
-    }
-
     return classifier.getActiveClassifier(this.$store) !== undefined;
   }
 

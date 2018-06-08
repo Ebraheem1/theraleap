@@ -24,17 +24,23 @@ import { WristAngleClassifierId } from "@/classify/classifiers/wristAngle";
 })
 export default class GameList extends Vue {
   get spaceShipValidClassifiers() {
-    var validClassifiers = [ThumbIndexClassifierId];
-    var activeClassifier = classifier.getActiveClassifier(this.$store)
-      .identifier;
-    return validClassifiers.includes(activeClassifier);
+    if (classifier.getActiveClassifier(this.$store) !== undefined) {
+      var validClassifiers = [ThumbIndexClassifierId];
+      var activeClassifier = classifier.getActiveClassifier(this.$store)
+        .identifier;
+      return validClassifiers.includes(activeClassifier);
+    }
+    return true;
   }
 
   get superMarioValidClassifiers() {
-    var validClassifiers = [WristAngleClassifierId];
-    var activeClassifier = classifier.getActiveClassifier(this.$store)
-      .identifier;
-    return validClassifiers.includes(activeClassifier);
+    if (classifier.getActiveClassifier(this.$store) !== undefined) {
+      var validClassifiers = [WristAngleClassifierId];
+      var activeClassifier = classifier.getActiveClassifier(this.$store)
+        .identifier;
+      return validClassifiers.includes(activeClassifier);
+    }
+    return true;
   }
 }
 </script>

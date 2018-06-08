@@ -58,8 +58,8 @@ export default class SuperMarioGame implements Game {
 
     this.iP5 = new p5((s: p5) => {
       s.setup = () => {
-        console.log(config.element.clientWidth);
         s.createCanvas(config.element.clientWidth, config.element.clientHeight);
+        s.frameRate(30);
         loadImages(s);
       };
 
@@ -116,49 +116,30 @@ export default class SuperMarioGame implements Game {
   }
 
   onClassificationReceived(c: ClassificationData) {
-    if (c.cheats.cheated) {
+    if (c.cheats.cheated && c.cheats.message == "Raise") {
       this.cheated = true;
     } else {
+      this.cheated = false;
       var wristAngle = c.metrics.quality;
-      this.wristAnglesArr.push(
-        c.actionName == "downwards" ? -1 * wristAngle : wristAngle
-      );
+      if (wristAngle > 0)
+        this.wristAnglesArr.push(
+          c.actionName == "downwards" ? -1 * wristAngle : wristAngle
+        );
 
       if (c.actionName == "upwards") {
-        // console.log("time taken upwards", c.metrics.time);
         if (wristAngle > this.maxAngleUpward) this.maxAngleUpward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
-        this.marioY -= this.marioY > 30 ? 0.5 : 0;
-        this.cheated = false;
+        this.marioY -= this.marioY > 30 ? 1 : 0;
+        // this.cheated = false;
       } else if (c.actionName == "downwards") {
-        // console.log("time taken downwards", c.metrics.time);
         if (wristAngle > this.maxAngleDownward)
           this.maxAngleDownward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
-        this.marioY += this.marioY <= this.height - 30 ? 0.5 : 0;
-        this.cheated = false;
+        this.marioY += this.marioY <= this.height - 30 ? 1 : 0;
+        // this.cheated = false;
       }
     }
   }
 
-  onMotionTrackingDataReceived(m: GenericHandTrackingData) {
-    const leap = m.data as LeapDeviceFrame;
-    const iBox = leap.interactionBox;
-    if (leap.hands && leap.hands.length >= 1) {
-      // this. = project(
-      //   leap.hands[0].palmPosition[0],
-      //   iBox.center[0] - iBox.size[0] / 2,
-      //   iBox.center[0] + iBox.size[0] / 2,
-      //   0,
-      //   this.width
-      // );
-      // this.y = project(
-      //   leap.hands[0].palmPosition[2],
-      //   iBox.center[2] - iBox.size[2] / 2,
-      //   iBox.center[2] + iBox.size[2] / 2,
-      //   this.height - this.height / 4,
-      //   this.height - 100
-      // );
-    }
-  }
+  onMotionTrackingDataReceived(m: GenericHandTrackingData) {}
 }

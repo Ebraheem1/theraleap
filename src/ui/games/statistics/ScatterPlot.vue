@@ -39,7 +39,6 @@ export default class ScatterPlot extends Vue {
     this.labelX = "Ordered Frames";
     this.labelY = "Angles";
     this.columns.unshift("Angles");
-    console.log("drawScatterTI func", this.columns);
     var scatterPlot = this.$el.querySelector("div");
     if (scatterPlot) {
       var scatterChart = c3.generate({

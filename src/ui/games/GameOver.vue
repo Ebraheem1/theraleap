@@ -11,18 +11,18 @@
         <section v-if="score !== undefined" class="highscore">
             Your final Score: <s-code>{{ score.toString().padStart(5, '0') }}</s-code> points.
         </section>
-        <section v-if="data !== undefined" class="highscore">
+        <section v-if="showTime" class="highscore">
             Your time to reach Threshold: <s-code>{{ data[2].toString().padStart(5, '0') }}</s-code> sec(s).
         </section>
-        <section v-if="data !== undefined && data[0] == 'WA-LEAP'" class="highscore">
+        <section v-if="showUpwardsAngle" class="highscore">
             Your maximum angle reached Upwards: <s-code>{{ Number.parseFloat(data[3]).toPrecision(4) }}</s-code> degrees.
         </section>
-        <section v-if="data !== undefined && data[0] == 'WA-LEAP'" class="highscore">
+        <section v-if="showDownwardsAngle" class="highscore">
             Your maximum angle reached Downwards: <s-code>{{ Number.parseFloat(data[4]).toPrecision(4) }}</s-code> degrees.
         </section>
-        <scatter-plot v-if="chartAppearance"
+        <scatter-plot v-if="scatterAppearance"
         :columns="scatterColumns" :identifier="identifierChangeScatter"></scatter-plot>
-        <histogram v-if="chartAppearance"
+        <histogram v-if="histogramAppearance"
         :columns="histogramColumns"
         :identifier="identifierChangeHistogram"></histogram>
         <section v-if="statistics !== undefined">
@@ -90,6 +90,36 @@ export default class GameOver extends Vue {
     return ["You Lose!", "Better Luck next time!"];
   }
 
+  get showTime() {
+    if (
+      this.data !== undefined &&
+      (this.data[0] == "TI-LEAP" || this.data[0] == "WA-LEAP") &&
+      this.data[2] > 0
+    )
+      return true;
+    return false;
+  }
+
+  get showUpwardsAngle() {
+    if (
+      this.data !== undefined &&
+      this.data[0] == "WA-LEAP" &&
+      this.data[3] > 0
+    )
+      return true;
+    return false;
+  }
+
+  get showDownwardsAngle() {
+    if (
+      this.data !== undefined &&
+      this.data[0] == "WA-LEAP" &&
+      this.data[4] > 0
+    )
+      return true;
+    return false;
+  }
+
   get scatterColumns() {
     if (this.data !== undefined) {
       if (this.data[0] == "TI-LEAP") return this.data[3];
@@ -116,16 +146,27 @@ export default class GameOver extends Vue {
 
   get identifierChangeHistogram() {
     if (this.data !== undefined && this.data[0] == "TI-LEAP") {
-      console.log("histo");
       return this.data[0];
     }
   }
 
-  get chartAppearance() {
+  get scatterAppearance() {
+    console.log(this.data);
     if (
       this.data !== undefined &&
       ((this.data[0] == "TI-LEAP" && this.data[3].length > 2) ||
-        this.data[0] == "WA-LEAP")
+        (this.data[0] == "WA-LEAP" && this.data[5].length > 2))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  get histogramAppearance() {
+    if (
+      this.data !== undefined &&
+      this.data[0] == "TI-LEAP" &&
+      this.data[3].length > 2
     ) {
       return true;
     }
@@ -133,10 +174,7 @@ export default class GameOver extends Vue {
   }
 
   public mounted() {
-    if (this.data !== undefined) {
-      if (this.data[0] == "TI-LEAP" || this.data[0] == "WA-LEAP") {
-      }
-    } else if (this.statistics) {
+    if (this.statistics && this.data === undefined) {
       const p: { data: number; index: number }[] = [];
       this.statistics.forEach((d: LeapHandTrackingData, idx) => {
         const pointable = getPointableWithId(d.data.pointables, 0);
