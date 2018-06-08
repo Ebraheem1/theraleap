@@ -2,7 +2,7 @@
     <md-card>
       <md-card-header>
         <div class="md-title">Thumb Index Classifier</div>
-        <div class="md-subhead">******</div>
+        <div class="md-subhead">It detects the angle between the thumb and the index fingers and once the angle reaches or exceeds the threshold, the classifier is activated</div>
         <div class="enabled">
             <md-switch
               :value="!thumbIndexClassifierEnabled"
@@ -15,15 +15,15 @@
         <md-subheader>Classifier Description</md-subheader>
         <section>
           <h1>General</h1>
-          Example Classifier initially provided with Theraleap. It does a naive classification of whether the User is spreading the Thumb. This classifier is intentionally very crude, as not much time was invested in its conception (development of classifiers is no integral part of the Theraleap student research project). Instead, this classifier is supposed to give a proof of concept of how classifiers are integrated and configured in Theraleap.
+          This Classifier is designed to meet the therapist requirements. The main requirement that lead to develop this Classifier was to detect the angle in the 2D space between the thumb and the index fingers. Thus, depending on the raw data streamed from the leap motion API, the classifier is computing the angle and evaluating some metrics to make sure that the angles measured are as accurate as they possibly can be.
           <h1>Algorithm</h1>
-          This classifier detects the extension of the thumb. It does so naively simply by looking at the thumb position in a configurable timeframe (<s-code>window</s-code>). It first computes the difference between the maximum and minimum thumb positions in the timeframe. If (and only if) a significant decisive factor is determined (as configured by <s-code>detectionThreshold</s-code>), the first derivative of the historic thumb positions is taken, and the first zero intersection is searched. Zero intersections of the first derivatives denote a change of direction. If a zero intersection is found in the first derivative, it is fuzzily (as configurable through <s-code>symmetryTolerance</s-code>) determined if the intersection is centered in the dataset. Finally, the detection may be throttled (<s-code>detectionThrottle</s-code>) in order to prevent duplicate detections.
+          The Algorithm of this classifier is briefly working as follows. It first checks that the leap motion is detecting only one hand in the frame to make the calculation more accurate, otherwise, it descards the whole frame. Then it calculates some metrics that has nothing to do with the index or the thumb fingers, but these metrics are useful in order to enable the classifer detecting that the patient is doing the hand movement without any cheats or any wrong movements, these metrics are (<s-code>wrist angle</s-code>), (<s-code>height of the hand from the leap device</s-code>), (<s-code>the grab strength of the hand</s-code>) and (<s-code>rotation angle of the hand in all directions</s-code>). It also calculates the time taken by the patient to reach the threshold without cheating in the hand movements. In other words, the cheated time is discarded from the time calculation done by the classifier, which enables revealing more accurate time calculations. Last but not least, the angle between the index and the thumb Fingers are calculated using dot product between the position of both fingers. That means the algorithm treats each finger as if it's a vector that has a direction in x, y and z axes. 
           <h1>Performance Metric</h1>
-          This classifier includes no Performance Metric. Metrics based on a configurable maximum Spread distance are thinkable as a possible next step.
+          This classifier includes no Performance Metric.
           <h1>Cheat Metric</h1>
-          This classifier includes no Cheat Metric.
+          This classifier includes cheat metrics as stated in the Algorithm sub-section above. Those Metrics are (<s-code>wrist angle</s-code>), (<s-code>height of the hand from the leap device</s-code>), (<s-code>the grab strength of the hand</s-code>) and (<s-code>rotation angle of the hand in all directions</s-code>).
           <h1>Room for Improvement</h1>
-          This classifier should be replaced with something more robust in the future. The most fundamental flaw currently is that the classification is done based on thumb position alone, now something that makes more sense like thumb / index angle. Also, it only works for the left hand, but making the classifier independent of handedness is trivial.
+          Improving the Classifier quality by detecting the angle between the thumb and the index fingers only in the 2D space. In other words, treating the hand as a 2D object while calculating the angle only and to retrieve the data related to the hand as a 2D object from leap motion API (which is not provided up to this moment).
         </section>
         <md-subheader>Classifier Settings</md-subheader>
         <md-divider></md-divider>
