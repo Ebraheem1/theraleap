@@ -5,13 +5,13 @@
 
     <md-card-header>
       <div class="md-title">Super Mario</div>
-      <div class="md-subhead">Destroy evil Polygons with the epic power of your hand!</div>
+      <div class="md-subhead">Help Mario to save Princess Toadstool from Bowser by reaching the destination!</div>
     </md-card-header>
 
     <md-card-content>
       <md-subheader>Game Description</md-subheader>
       <section>
-          Move the Spaceship by hovering the hand over the sensor. The therapist will show you the Gesture you need to do in order to shoot the spaceship.
+          Move Mario either upwards or downwards to obtain more gifts in order to reach the destination. Also try to avoid the obstacles in order not to lose. The therapist will show you the Gesture you need to move Mario up or down.
       </section>
     </md-card-content>
     <md-card-actions>
