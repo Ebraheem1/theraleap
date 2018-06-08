@@ -11,7 +11,7 @@
       <md-card-content>
         <md-subheader>Game Description</md-subheader>
         <section>
-            Move the Spaceship by hovering the hand over the sensor. The therapist will show you the Gesture you need to do in order to shoot the spaceship.
+            Move the Spaceship by hovering the hand over the sensor. The therapist will show you the Gesture you need to do in order to shoot the evil space Crafts.
         </section>
       </md-card-content>
       <md-card-actions>
