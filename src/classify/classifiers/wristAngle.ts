@@ -158,7 +158,7 @@ export class WristAngleClassifier
             return {
               actionName: "upwards",
               metrics: {
-                quality: wristAngle
+                quality: hand.confidence >= 0.7 ? wristAngle : 0
               },
               cheats: {
                 cheated: false,

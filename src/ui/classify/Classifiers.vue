@@ -76,6 +76,8 @@ export default class Classifiers extends Vue {
   public classifierSelectionUpdated(activeClassifier: string) {
     const currentClassifierState = this.classifierConfigState[activeClassifier]
       .enabled;
+    console.log(currentClassifierState);
+
     disableAllClassifiers(this.$store);
     modifyClassifier(this.$store, {
       name: activeClassifier,

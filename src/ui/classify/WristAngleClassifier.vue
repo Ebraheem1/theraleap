@@ -30,13 +30,11 @@
         <md-field>
           <label>Detection Upper Angle Threshold</label>
           <md-input v-model="upperAngleThreshold" type="number" />
-          <span class="md-helper-text">How generously to move forward with the detection. The bigger this number, the further the thumb has to be spread.</span>
         </md-field>
 
         <md-field>
           <label>Detection Lower Angle Threshold</label>
           <md-input v-model="lowerAngleThreshold" type="number" />
-          <span class="md-helper-text">How generously to move forward with the detection. The bigger this number, the further the thumb has to be spread.</span>
         </md-field>
 
         <div>
