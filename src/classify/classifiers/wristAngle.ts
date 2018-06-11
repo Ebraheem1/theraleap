@@ -73,7 +73,6 @@ export class WristAngleClassifier
               extra: undefined
             };
           }
-          // if (frame.data.hands[0].confidence < 0.7) return;
 
           var hand = frame.data.hands[0];
           if (hand.type != this.handType) {

@@ -70,5 +70,7 @@ export const collisionCheck = (
 };
 
 export const checkGameover = () => {
-  return game;
+  var temp = game;
+  game = 0;
+  return temp;
 };
