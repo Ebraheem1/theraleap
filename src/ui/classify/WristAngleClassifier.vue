@@ -39,8 +39,8 @@
 
         <div>
           <div class="md-subhead">Hand Type</div>
-          <md-radio v-model="handType" value="left">Left</md-radio>
-          <md-radio v-model="handType" value="right">Right</md-radio>
+          <md-radio v-model="handType" @change="classifierSelectionUpdated" value="left">Left</md-radio>
+          <md-radio v-model="handType" @change="classifierSelectionUpdated" value="right">Right</md-radio>
         </div>
 
       </md-card-content>
