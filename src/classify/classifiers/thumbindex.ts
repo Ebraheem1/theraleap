@@ -229,6 +229,8 @@ export class ThumbIndexClassifier
               };
             }
           } else if (frame.data.hands.length == 0) {
+            this.startCheat =
+              this.startCheat == -1 ? new Date() : this.startCheat;
             return {
               actionName: "NA",
               metrics: {
@@ -242,6 +244,8 @@ export class ThumbIndexClassifier
               extra: undefined
             };
           } else {
+            this.startCheat =
+              this.startCheat == -1 ? new Date() : this.startCheat;
             return undefined;
           }
         }),
