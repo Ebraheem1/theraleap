@@ -151,7 +151,6 @@ export default class GameOver extends Vue {
   }
 
   get scatterAppearance() {
-    console.log(this.data);
     if (
       this.data !== undefined &&
       ((this.data[0] == "TI-LEAP" && this.data[3].length > 2) ||

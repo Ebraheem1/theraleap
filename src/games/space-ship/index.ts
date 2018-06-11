@@ -54,7 +54,7 @@ export default class SpaceShipGame implements Game {
   private mX: number = 0;
   private mY: number = 0;
   private posX: number = 240;
-  private timeArray: number[] = [];
+  private maxTime: number = 0;
   private state: string = "NA";
   private sensor!: string;
   private winState!: boolean;
@@ -188,13 +188,7 @@ export default class SpaceShipGame implements Game {
     this.thumbIndexAngleArrDis = arr[1];
     this.distalMedialArr = arr[2];
     this.medialProximalArr = arr[3];
-    if (this.timeArray.length > 0) {
-      var maxTime = Math.max(...this.timeArray);
-      maxTime /= 1000;
-      this.timeArray = [Number(Number.parseFloat("" + maxTime).toPrecision(4))];
-    } else {
-      this.timeArray = [0];
-    }
+    this.maxTime /= 1000;
   }
   public async onStart(config: GameConfiguration, notifyGameState: () => void) {
     this.width = config.element.clientWidth;
@@ -248,11 +242,6 @@ export default class SpaceShipGame implements Game {
     if (this.sensor == "LEAP") {
       this.handleLeapStats();
     }
-    if (this.timeArray.length == 0) {
-      this.timeArray = [0];
-    }
-    var tmp = this.timeArray;
-    this.timeArray = [];
     var flag = false;
     if (this.winState) flag = true;
     vm.$router.push({
@@ -262,7 +251,7 @@ export default class SpaceShipGame implements Game {
         data: [
           "TI-LEAP",
           flag,
-          tmp[0],
+          Number(Number.parseFloat("" + this.maxTime).toPrecision(4)),
           this.thumbIndexAngleArrCon,
           this.thumbIndexAngleArrDis,
           this.distalMedialArr,
@@ -295,9 +284,7 @@ export default class SpaceShipGame implements Game {
       }
       this.playLaser();
       this.state = "NA";
-      if (this.timeArray.length < 30000 && c.time > 0) {
-        this.timeArray.push(c.time);
-      }
+      this.maxTime = Math.max(this.maxTime, c.time);
       if (frames.length < 30000) this.frames.push(c.extra);
     } else if (c && c.cheats.cheated) {
       //This is generic file, as

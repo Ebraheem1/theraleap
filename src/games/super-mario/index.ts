@@ -91,6 +91,7 @@ export default class SuperMarioGame implements Game {
   public async onStop(vm: Vue) {
     var flag = false;
     if (this.winState) flag = true;
+    this.maxTime /= 1000;
     vm.$router.push({
       name: "game-over",
       params: {
@@ -98,7 +99,7 @@ export default class SuperMarioGame implements Game {
         data: [
           "WA-LEAP",
           flag,
-          this.maxTime,
+          Number(Number.parseFloat("" + this.maxTime).toPrecision(4)),
           this.maxAngleUpward,
           this.maxAngleDownward,
           this.wristAnglesArr
@@ -130,13 +131,11 @@ export default class SuperMarioGame implements Game {
         if (wristAngle > this.maxAngleUpward) this.maxAngleUpward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
         this.marioY -= this.marioY > 30 ? 1 : 0;
-        // this.cheated = false;
       } else if (c.actionName == "downwards") {
         if (wristAngle > this.maxAngleDownward)
           this.maxAngleDownward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
         this.marioY += this.marioY <= this.height - 30 ? 1 : 0;
-        // this.cheated = false;
       }
     }
   }
