@@ -119,11 +119,10 @@ export default class SuperMarioGame implements Game {
   }
 
   onClassificationReceived(c: ClassificationData) {
+    if (this.paused) return;
     if (c.cheats.cheated) {
       this.cheated = true;
       this.cheatMessage = c.cheats.message;
-      console.log("hi");
-      console.log(this.cheatMessage);
     } else {
       this.cheated = false;
       var wristAngle = c.metrics.quality;
