@@ -73,28 +73,51 @@ export const drawMario = (marioX: number, marioY: number, ctx: p5) => {
   ctx.image(player, marioX, marioY);
 };
 
-export const drawAnim = (width: number, height: number, ctx: p5) => {
-  raisehandframe = (raisehandframe + 1) % raisehand.length;
-  ctx.imageMode(ctx.CENTER);
-  var img = raisehand[raisehandframe];
-  ctx.image(img, 0.5 * width, 0.5 * height);
+export const drawAnim = (
+  width: number,
+  height: number,
+  message: string,
+  ctx: p5
+) => {
+  if (message == "Raise") {
+    raisehandframe = (raisehandframe + 1) % raisehand.length;
+    ctx.imageMode(ctx.CENTER);
+    var img = raisehand[raisehandframe];
+    ctx.image(img, 0.5 * width, 0.5 * height);
 
-  if (raisehandframe == 23 && raisehandlastframe < 20) {
-    raisehandframe = 22;
-    raisehandlastframe++;
-  } else {
-    raisehandlastframe = 0;
+    if (raisehandframe == 23 && raisehandlastframe < 20) {
+      raisehandframe = 22;
+      raisehandlastframe++;
+    } else {
+      raisehandlastframe = 0;
+    }
+
+    var color = ctx.color(0, 0, 0);
+    var fontSize = 25;
+    ctx.fill(color);
+    ctx.textSize(fontSize);
+    ctx.text(
+      "Please, Raise your hand a bit more!",
+      0.025 * width,
+      0.178 * height
+    );
+  } else if (message == "No Hand") {
+    var color = ctx.color(0, 0, 0);
+    var fontSize = 25;
+    ctx.fill(color);
+    ctx.textSize(fontSize);
+    ctx.text("No Hand Detected", 0.025 * width, 0.178 * height);
+  } else if (message == "Wrong Hand") {
+    var color = ctx.color(0, 0, 0);
+    var fontSize = 25;
+    ctx.fill(color);
+    ctx.textSize(fontSize);
+    ctx.text(
+      "Wrong Hand Type, Please play with the other hand",
+      0.025 * width,
+      0.178 * height
+    );
   }
-
-  var color = ctx.color(0, 0, 0);
-  var fontSize = 25;
-  ctx.fill(color);
-  ctx.textSize(fontSize);
-  ctx.text(
-    "Please, Raise your hand a bit more :)",
-    0.025 * width,
-    0.178 * height
-  );
 };
 
 export const checkHeart = (width: number, height: number, ctx: p5) => {

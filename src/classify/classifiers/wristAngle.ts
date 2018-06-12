@@ -62,13 +62,13 @@ export class WristAngleClassifier
               this.startCheating = new Date();
             }
             return {
-              actionName: "cheated",
+              actionName: "NA",
               metrics: {
                 quality: 0
               },
               cheats: {
                 cheated: true,
-                message: "No Hand Detected"
+                message: "No Hand"
               },
               time: -1,
               extra: undefined
@@ -86,13 +86,13 @@ export class WristAngleClassifier
               this.startCheating = new Date();
             }
             return {
-              actionName: "cheated",
+              actionName: "NA",
               metrics: {
                 quality: 0
               },
               cheats: {
                 cheated: true,
-                message: "Wrong Hand Type"
+                message: "Wrong Hand"
               },
               time: -1,
               extra: undefined
@@ -122,7 +122,7 @@ export class WristAngleClassifier
               this.startCheating = new Date();
             }
             return {
-              actionName: "cheated",
+              actionName: "NA",
               metrics: {
                 quality: 0
               },

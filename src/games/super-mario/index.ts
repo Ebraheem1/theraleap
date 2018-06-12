@@ -35,6 +35,7 @@ export default class SuperMarioGame implements Game {
   private flowerY: number = 0;
 
   private cheated: boolean = false;
+  private cheatMessage: string = "";
   private score: number = 0;
   private gameOver: boolean = false;
   private paused: boolean = false;
@@ -78,7 +79,8 @@ export default class SuperMarioGame implements Game {
         } else {
           drawBackground(this.width, this.height, s);
           drawMario(this.marioX, this.marioY, s);
-          if (this.cheated) drawAnim(this.width, this.height, s);
+          if (this.cheated)
+            drawAnim(this.width, this.height, this.cheatMessage, s);
           checkHeart(this.width, this.height, s);
           checkFlower(this.width, this.height, s);
           doBezier();
@@ -117,8 +119,11 @@ export default class SuperMarioGame implements Game {
   }
 
   onClassificationReceived(c: ClassificationData) {
-    if (c.cheats.cheated && c.cheats.message == "Raise") {
+    if (c.cheats.cheated) {
       this.cheated = true;
+      this.cheatMessage = c.cheats.message;
+      console.log("hi");
+      console.log(this.cheatMessage);
     } else {
       this.cheated = false;
       var wristAngle = c.metrics.quality;
