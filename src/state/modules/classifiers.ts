@@ -45,6 +45,7 @@ export const classifier = {
         upperAngleThreshold: 30,
         lowerAngleThreshold: 30,
         handType: "right",
+        difficulty: "medium",
         constructConfig: () => {
           return {
             identifier: WristAngleClassifierId,
@@ -53,7 +54,8 @@ export const classifier = {
                 .upperAngleThreshold,
               classifier.state.classifiers.WristAngleClassifier
                 .lowerAngleThreshold,
-              classifier.state.classifiers.WristAngleClassifier.handType
+              classifier.state.classifiers.WristAngleClassifier.handType,
+              classifier.state.classifiers.WristAngleClassifier.difficulty
             ]
           };
         }

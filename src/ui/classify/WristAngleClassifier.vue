@@ -43,6 +43,15 @@
           <md-radio v-model="handType" @change="classifierSelectionUpdated" value="right">Right</md-radio>
         </div>
 
+        <br>
+
+        <div>
+          <div class="md-subhead">Difficulty</div>
+          <md-radio v-model="difficulty" @change="classifierSelectionUpdated" value="easy">Easy</md-radio>
+          <md-radio v-model="difficulty" @change="classifierSelectionUpdated" value="medium">Medium</md-radio>
+          <md-radio v-model="difficulty" @change="classifierSelectionUpdated" value="hard">Hard</md-radio>
+        </div>
+
       </md-card-content>
     </md-card>
 </template>
@@ -96,10 +105,14 @@ export default class WristAngleClassifier extends Vue {
     return this.config.handType;
   }
 
+  get difficulty() {
+    return this.config.difficulty;
+  }
+
   set lowerAngleThreshold(newValue: string) {
     modifyClassifier(this.$store, {
       name: "WristAngleClassifier",
-      newState: { lowerAngleThreshold: parseInt(newValue) }
+      newState: { lowerAngleThreshold: newValue }
     });
     this.classifierSelectionUpdated();
   }
@@ -116,6 +129,14 @@ export default class WristAngleClassifier extends Vue {
     modifyClassifier(this.$store, {
       name: "WristAngleClassifier",
       newState: { handType: newValue }
+    });
+    this.classifierSelectionUpdated();
+  }
+
+  set difficulty(newValue: string) {
+    modifyClassifier(this.$store, {
+      name: "WristAngleClassifier",
+      newState: { difficulty: newValue }
     });
     this.classifierSelectionUpdated();
   }

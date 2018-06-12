@@ -130,12 +130,12 @@ export default class SuperMarioGame implements Game {
       if (c.actionName == "upwards") {
         if (wristAngle > this.maxAngleUpward) this.maxAngleUpward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
-        this.marioY -= this.marioY > 30 ? 1 : 0;
+        this.marioY -= this.marioY > 30 ? c.extra.difficulty : 0;
       } else if (c.actionName == "downwards") {
         if (wristAngle > this.maxAngleDownward)
           this.maxAngleDownward = wristAngle;
         this.maxTime = Math.max(this.maxTime, c.time);
-        this.marioY += this.marioY <= this.height - 30 ? 1 : 0;
+        this.marioY += this.marioY <= this.height - 30 ? c.extra.difficulty : 0;
       }
     }
   }

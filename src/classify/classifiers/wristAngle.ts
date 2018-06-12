@@ -34,6 +34,7 @@ export class WristAngleClassifier
     private detectionUpperAngleThreshold: number,
     private detectionLowerAngleThreshold: number,
     private handType: string,
+    private difficulty: string,
     // private firstend: boolean = true,
     private timeStart: Date,
     private startCheating: Date,
@@ -133,7 +134,12 @@ export class WristAngleClassifier
               extra: undefined
             };
           }
-
+          var diff =
+            this.difficulty == "easy"
+              ? 2.4
+              : this.difficulty == "medium"
+                ? 1.5
+                : 0.8;
           if (this.cheatingFlag) {
             this.cheatingFlag = false;
             var now = new Date();
@@ -164,7 +170,7 @@ export class WristAngleClassifier
                 message: "NA"
               },
               time: time,
-              extra: undefined
+              extra: { difficulty: diff }
             };
           } else if (
             !upDirection &&
@@ -194,7 +200,7 @@ export class WristAngleClassifier
                 message: "NA"
               },
               time: time,
-              extra: undefined
+              extra: { difficulty: diff }
             };
           } else {
             if (!this.stopHolding) {
@@ -212,7 +218,7 @@ export class WristAngleClassifier
                 message: "NA"
               },
               time: -1,
-              extra: undefined
+              extra: { difficulty: diff }
             };
           }
         }),
