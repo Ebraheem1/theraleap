@@ -33,6 +33,14 @@
                 <span class="measurement-label">Ring / Pinky</span>
                 <span class="measurement-value"><s-code>{{ angles.ringPinky | displayAngle }}</s-code></span>
             </p>
+            <p class="measurement">
+                <span class="measurement-label">Wrist Angle Upward</span>
+                <span class="measurement-value"><s-code>{{ angles.wristAngleUpward | displayAngle }}</s-code></span>
+            </p>
+            <p class="measurement">
+                <span class="measurement-label">Wrist Angle Downward</span>
+                <span class="measurement-value"><s-code>{{ angles.wristAngleDownward | displayAngle }}</s-code></span>
+            </p>
         </section>
        </section>
    </section> 
@@ -59,7 +67,8 @@ import { GenericHandTrackingData } from "@/devices";
 
 import {
   calculatePointableAngle,
-  sortPointables
+  sortPointables,
+  measureWristAngle
 } from "@/ui/measure/measureUtils";
 
 @Component({
@@ -84,19 +93,20 @@ import {
 export default class HandMeasurement extends Vue {
   public numHandsAboveSensor = 0;
   public pAverageWindow: number = 2500;
-
   private frameSubscription: Subscription | undefined;
-
+  //attribute 4 --> Object
   public measureHandConfig: Partial<HandConfig> = {
     mainColor: 0xff0000,
     drawWireFrame: false
   };
-
+  //attribute 5 --> Object
   public angles: { [key: string]: number | undefined } = {
     thumbIndex: undefined,
     indexMiddle: undefined,
     middleRing: undefined,
-    ringPinky: undefined
+    ringPinky: undefined,
+    wristAngleUpward: undefined,
+    wristAngleDownward: undefined
   };
 
   get averageWindow() {
@@ -127,17 +137,18 @@ export default class HandMeasurement extends Vue {
               this.numHandsAboveSensor = frame.data.hands.length;
             } else {
               console.warn(
-                "Measurements not implemented for device:",
+                "Measurements not implemented for device: ",
                 this.deviceName
               );
             }
           }),
+          //Every 0.5 sec, opens a buffer that emits the data after
+          //buffering it from the source for windowSize milliseconds
           bufferTime(windowSize, 500)
         )
         .subscribe(this.performMeasurement);
     }
   }
-
   private resetSubscription() {
     this.frameSubscription && this.frameSubscription.unsubscribe();
   }
@@ -146,11 +157,15 @@ export default class HandMeasurement extends Vue {
     if (this.deviceName !== LEAP_MOTION_DEVICE_NAME) return;
     const frames: LeapHandTrackingData[] = data;
     let numFramesProcessed = 0;
+    let numFramesWristUpward = 0;
+    let numFramesWristDownward = 0;
     const angles = {
       thumbIndex: 0,
       indexMiddle: 0,
       middleRing: 0,
-      ringPinky: 0
+      ringPinky: 0,
+      wristAngleUpward: 0,
+      wristAngleDownward: 0
     };
     frames.forEach(frame => {
       const sortedPointables = sortPointables(frame);
@@ -161,19 +176,30 @@ export default class HandMeasurement extends Vue {
         angles.indexMiddle += calculatePointableAngle(index, middle);
         angles.middleRing += calculatePointableAngle(middle, ring);
         angles.ringPinky += calculatePointableAngle(ring, pinky);
+        //wa stands for wristangle that is returned from the function
+        var wa = measureWristAngle(frame.data);
+        if (wa > 0) {
+          angles.wristAngleUpward += wa;
+          numFramesWristUpward++;
+        } else {
+          angles.wristAngleDownward += wa * -1;
+          numFramesWristDownward++;
+        }
       }
     });
     this.angles = {
       thumbIndex: angles.thumbIndex / numFramesProcessed,
       indexMiddle: angles.indexMiddle / numFramesProcessed,
       middleRing: angles.middleRing / numFramesProcessed,
-      ringPinky: angles.ringPinky / numFramesProcessed
+      ringPinky: angles.ringPinky / numFramesProcessed,
+      wristAngleUpward: angles.wristAngleUpward / numFramesWristUpward,
+      wristAngleDownward: angles.wristAngleDownward / numFramesWristDownward
     };
   }
-
+  //Other Attribute
   private deviceName = device.getDeviceFacade(this.$store).getDeviceDriver()
     .deviceName;
-
+  //Other Attribute
   private trackingData = device
     .getDeviceFacade(this.$store)
     .getHandTrackingData(this.$store);
