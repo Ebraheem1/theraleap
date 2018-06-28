@@ -240,6 +240,8 @@ export default class SpaceShipGame implements Game {
   }
   public async onStop(vm: Vue) {
     if (this.sensor == "LEAP") {
+      //This check to make the game generic enough to work with all sensors.
+      //Also to do various statistics depending on the sensor used
       this.handleLeapStats();
     }
     var flag = false;
@@ -249,6 +251,7 @@ export default class SpaceShipGame implements Game {
       params: {
         gameIdentifier: "space-ship",
         data: [
+          //This sequence is dependen on the gameIdentifier and checked in .vue files that are related to this game
           "TI-LEAP",
           flag,
           Number(Number.parseFloat("" + this.maxTime).toPrecision(4)),

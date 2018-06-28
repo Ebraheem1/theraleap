@@ -43,11 +43,15 @@ export class ThumbIndexClassifier
     private cheatedTime: any,
     private prevtime: any
   ) {
+    //This variable is used to report the transition of the thumb movement
+    //So it's true once the patient reaches the threshold while he/she had in the
+    //previous frames angles less than the threshold
     this.thumbState = false;
     this.startCheat = -1;
     this.cheatedTime = 0;
     this.prevtime = 0;
   }
+  //This function measures the angle between the thumb and the index fingers in a frame
   public measuringAngleBetweenFingers(
     frame: LeapDeviceFrame
   ): number | undefined {
@@ -61,6 +65,8 @@ export class ThumbIndexClassifier
       return undefined;
     }
   }
+  //This Function compares the angle that is detected in a valid non-cheated frame
+  //with the threshold configured in the classifier
   public checkThumb(angle: number): boolean {
     if (angle >= this.detectionThreshold && !this.getThumbState()) {
       this.setThumbState(true);
@@ -87,6 +93,7 @@ export class ThumbIndexClassifier
     return source
       .pipe(
         map((frame: LeapHandTrackingData) => {
+          //We need to work with frames that contain only one Hand
           if (frame.data.hands.length == 1) {
             var hand = frame.data.hands[0];
             var palmPosition = hand.stabilizedPalmPosition[1];
@@ -98,7 +105,7 @@ export class ThumbIndexClassifier
             //Roll here represents the rotation around the z-axis
             var rotationAngle =
               roll(hand.palmNormal[0], hand.palmNormal[1]) * (180 / Math.PI);
-
+            //Height above the leap motion device, should be high enough
             if (hand.stabilizedPalmPosition[1] < 270) {
               this.startCheat =
                 this.startCheat == -1 ? new Date() : this.startCheat;
@@ -184,6 +191,7 @@ export class ThumbIndexClassifier
                 extra: undefined
               };
             }
+            //Reaching this line means that this frame contains no cheats at all
             if (this.startCheat != -1) {
               var now: any = new Date();
               this.cheatedTime += now - this.startCheat;
@@ -194,6 +202,8 @@ export class ThumbIndexClassifier
             var timetaken: any = 0;
             if (angle && this.checkThumb(angle)) {
               //When it shots it just can finish the timer calculations
+              //We don't care about the time take to reach the very first threshold in the system
+              //therefore, we initialize prevtime with 0
               if (this.prevtime == 0) {
                 this.prevtime = now;
                 timetaken = -1;
