@@ -71,6 +71,13 @@
         </md-icon>
         <span class="md-list-item-text">Games</span>
       </md-list-item>
+      
+      <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)">
+        <md-icon>Add Therapist
+          <md-tooltip md-direction="right">Therapist</md-tooltip>
+        </md-icon>
+        <span class="md-list-item-text">Therapist</span>
+      </md-list-item>
     </md-list>
   </md-app-drawer>
   <md-app-content>

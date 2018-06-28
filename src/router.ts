@@ -34,6 +34,10 @@ const GameTabs = () => import("@/ui/games/GameTabs.vue");
 const GameExecutor = () => import("@/ui/games/GameExecutor.vue");
 const GameOver = () => import("@/ui/games/GameOver.vue");
 
+//Therapist routes
+const Therapists = () => import("@/ui/therapist/addTherapist.vue");
+const TherapistRoot = () => import("@/ui/therapist/therapistRoot.vue");
+
 import App from "@/ui/App.vue";
 
 export const RootRouter = new VueRouter({
@@ -154,6 +158,20 @@ export const RootRouter = new VueRouter({
           },
           path: "games",
           redirect: "/games/list"
+        },
+        {
+          children: [
+            {
+              component: Therapists,
+              path: "add"
+            }
+          ],
+          components: {
+            main: TherapistRoot,
+            tabs: HandMeasurementTabs
+          },
+          path: "therapist",
+          redirect: "/therapist/add"
         }
       ],
       component: App,

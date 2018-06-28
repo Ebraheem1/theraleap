@@ -53,6 +53,11 @@ Vue.use(Vuex);
 import VueOffline from "vue-offline";
 Vue.use(VueOffline);
 
+//This library to send HTTP requests to the server
+import VueAxios from "vue-axios";
+import axios from "axios";
+Vue.use(VueAxios, axios);
+
 import { AppContainer } from "@/dependencyinjection";
 import DIInject from "@/dependencyinjection/symbols";
 import { DeviceDriver } from "@/devices";
