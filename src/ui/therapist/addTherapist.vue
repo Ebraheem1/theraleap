@@ -10,6 +10,7 @@
       <md-card-content>
         <div class="container">
           <div class="form">
+            <span class="md-invalid" v-if="error" style="color:red">{{ errorMessage }}</span>
             <md-field>
               <label>Name</label>
               <md-input v-model="therapist.name"></md-input>
@@ -31,25 +32,34 @@
           class="md-raised md-primary">Save</md-button>
       </md-card-actions>
     </md-card>
+    <md-snackbar :md-active.sync="userSaved">The therapist {{ name }} was added with success!</md-snackbar>
   </section>
 </template>
 <script>
 export default {
-  data() {
-    return {
-      therapist: {}
-    };
-  },
+  data: () => ({
+    therapist: {},
+    userSaved: false,
+    name: null,
+    error: false,
+    errorMessage: null
+  }),
   methods: {
     createTherapist() {
       let uri = "http://localhost:4000/therapist/create";
       this.axios
         .post(uri, this.therapist)
         .then(response => {
-          console.log(response);
+          this.userSaved = true;
+          this.name = this.therapist.name;
+          this.therapist = {};
+          this.error = false;
+          this.errorMessage = null;
         })
         .catch(err => {
-          console.log(err.response.data);
+          this.error = true;
+          this.errorMessage = err.response.data;
+          // console.log(err.response.data);
         });
     }
   }
