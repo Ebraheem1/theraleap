@@ -5,7 +5,7 @@
       <md-icon>menu</md-icon>
     </md-button>
     <span class="md-title">TheraLeap</span>
-    <device-status 
+    <device-status
       :simulationRunning="simulationRunning"
       :connectionHealthy="connectionHealthy"
       @deactivateRecording="deactivateRecording"
@@ -71,9 +71,9 @@
         </md-icon>
         <span class="md-list-item-text">Games</span>
       </md-list-item>
-      
+
       <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)">
-        <md-icon>Add Therapist
+        <md-icon>perm_identity
           <md-tooltip md-direction="right">Therapist</md-tooltip>
         </md-icon>
         <span class="md-list-item-text">Therapist</span>

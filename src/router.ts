@@ -35,8 +35,10 @@ const GameExecutor = () => import("@/ui/games/GameExecutor.vue");
 const GameOver = () => import("@/ui/games/GameOver.vue");
 
 //Therapist routes
-const Therapists = () => import("@/ui/therapist/addTherapist.vue");
-const TherapistRoot = () => import("@/ui/therapist/therapistRoot.vue");
+const Therapists = () => import("@/ui/therapist/AddTherapist.vue");
+const TherapistRoot = () => import("@/ui/therapist/TherapistRoot.vue");
+const TherapistTabs = () => import("@/ui/therapist/TherapistTabs.vue");
+const AddPatient = () => import("@/ui/therapist/AddPatient.vue");
 
 import App from "@/ui/App.vue";
 
@@ -164,11 +166,15 @@ export const RootRouter = new VueRouter({
             {
               component: Therapists,
               path: "add"
+            },
+            {
+              component: AddPatient,
+              path: "add_patient"
             }
           ],
           components: {
             main: TherapistRoot,
-            tabs: HandMeasurementTabs
+            tabs: TherapistTabs
           },
           path: "therapist",
           redirect: "/therapist/add"

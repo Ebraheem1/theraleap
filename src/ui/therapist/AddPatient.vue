@@ -1,9 +1,9 @@
 
 <template>
   <div>
-    <h1>Invite A Therapist</h1>
+    <h1>Add Patient</h1>
     <!-- .prevent here to prevent reloading the page after clicking on submit button -->
-    <form v-on:submit.prevent="createTherapist">
+    <form v-on:submit.prevent="createPatient">
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
@@ -29,7 +29,7 @@
         </div>
       </div><br />
         <div class="form-group">
-          <button class="btn btn-primary">Create Therapist</button>
+          <button class="btn btn-primary">Create Patient</button>
         </div>
     </form>
   </div>
@@ -42,8 +42,8 @@ export default {
     };
   },
   methods: {
-    createTherapist() {
-      let uri = "http://localhost:4000/therapist/create";
+    createPatient() {
+      let uri = "http://localhost:4000/therapist/create_patient";
       this.axios
         .post(uri, this.therapist)
         .then(response => {
