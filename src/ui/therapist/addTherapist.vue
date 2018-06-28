@@ -1,38 +1,37 @@
 
 <template>
-  <div>
-    <h1>Invite A Therapist</h1>
-    <!-- .prevent here to prevent reloading the page after clicking on submit button -->
-    <form v-on:submit.prevent="createTherapist">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Name:</label>
-            <input type="text" class="form-control" v-model="therapist.name">
+  <section>
+    <md-card md-with-hover>
+      <md-card-header class="header-flex-container">
+        <section class="header-left">
+          <div class="md-title">Invite A Therapist</div>
+        </section>
+      </md-card-header>
+      <md-card-content>
+        <div class="container">
+          <div class="form">
+            <md-field>
+              <label>Name</label>
+              <md-input v-model="therapist.name"></md-input>
+            </md-field>
+            <md-field>
+              <label>Email</label>
+              <md-input v-model="therapist.email"></md-input>
+            </md-field>
+            <md-field>
+              <label>Password</label>
+              <md-input v-model="therapist.password" type="password"></md-input>
+            </md-field>
           </div>
         </div>
-      </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label>Email:</label>
-              <input type="text" class="form-control col-md-6" v-model="therapist.email">
-            </div>
-          </div>
-        </div>
-        <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Password:</label>
-            <input type="password" class="form-control" v-model="therapist.password">
-          </div>
-        </div>
-      </div><br />
-        <div class="form-group">
-          <button class="btn btn-primary">Create Therapist</button>
-        </div>
-    </form>
-  </div>
+      </md-card-content>
+      <md-card-actions>
+        <md-button
+          @click="createTherapist"
+          class="md-raised md-primary">Save</md-button>
+      </md-card-actions>
+    </md-card>
+  </section>
 </template>
 <script>
 export default {
