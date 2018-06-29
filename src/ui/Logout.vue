@@ -1,17 +1,19 @@
 
 <template>
-<h1>dsadsadsadsadsadsad</h1>
 </template>
 <script lang = "ts">
 import Vue from "vue";
+import { Component } from "vue-property-decorator";
+@Component({
+  components: {}
+})
 export default class Logout extends Vue {
-  mounted() {
+  public mounted() {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    console.log("Done");
-    // this.$router.push({
-    //     name: "device-log"
-    // });
+    this.$router.push({
+      name: "device-log"
+    });
   }
 }
 </script>

@@ -51,11 +51,16 @@ export default {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
             user.setUserType(this.$store, response.data.user.type);
+            this.$router.push({
+              name: "device-log"
+            });
           }
         })
         .catch(err => {
-          this.error = true;
-          this.errorMessage = err.response.data.message;
+          if (err) {
+            this.error = true;
+            this.errorMessage = err.response.data.message;
+          }
         });
     }
   }

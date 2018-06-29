@@ -52,6 +52,18 @@ const Logout = () => import("@/ui/Logout.vue");
 
 import App from "@/ui/App.vue";
 
+const loginTherapistRequired = (to: any, from: any, next: any) => {
+  var user: any | null = localStorage.getItem("user");
+  if (user == null) {
+    next({ path: "/therapist/login_therapist" });
+  }
+  user = JSON.parse(user);
+  if (user && user.type == "1") {
+    next();
+  } else {
+    next({ path: "/therapist/login_therapist" });
+  }
+};
 export const RootRouter = new VueRouter({
   routes: [
     {
@@ -101,11 +113,13 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: Classifiers,
-              path: "classifiers"
+              path: "classifiers",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: ClassifySettings,
-              path: "settings"
+              path: "settings",
+              beforeEnter: loginTherapistRequired
             }
           ],
           components: {
@@ -176,11 +190,13 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: Therapists,
-              path: "add"
+              path: "add",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: AddPatient,
-              path: "add_patient"
+              path: "add_patient",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: TherapistLogin,
@@ -209,7 +225,10 @@ export const RootRouter = new VueRouter({
           redirect: "/patient/login_patient"
         },
         {
-          component: Logout,
+          children: [],
+          components: {
+            main: Logout
+          },
           path: "logout"
         }
       ],
