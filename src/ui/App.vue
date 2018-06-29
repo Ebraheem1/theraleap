@@ -78,6 +78,13 @@
         </md-icon>
         <span class="md-list-item-text">Therapist</span>
       </md-list-item>
+
+      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)">
+        <md-icon>perm_identity
+          <md-tooltip md-direction="right">Patient</md-tooltip>
+        </md-icon>
+        <span class="md-list-item-text">Patient</span>
+      </md-list-item>
     </md-list>
   </md-app-drawer>
   <md-app-content>

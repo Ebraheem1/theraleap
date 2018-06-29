@@ -4,17 +4,13 @@
     <md-card md-with-hover>
       <md-card-header class="header-flex-container">
         <section class="header-left">
-          <div class="md-title">Invite A Therapist</div>
+          <div class="md-title">Therapist login</div>
         </section>
       </md-card-header>
       <md-card-content>
         <div class="container">
           <div class="form">
             <span class="md-invalid" v-if="error" style="color:red">{{ errorMessage }}</span>
-            <md-field>
-              <label>Name</label>
-              <md-input v-model="therapist.name"></md-input>
-            </md-field>
             <md-field>
               <label>Email</label>
               <md-input v-model="therapist.email"></md-input>
@@ -28,11 +24,10 @@
       </md-card-content>
       <md-card-actions>
         <md-button
-          @click="createTherapist"
-          class="md-raised md-primary">Save</md-button>
+          @click="loginTherapist"
+          class="md-raised md-primary">Login</md-button>
       </md-card-actions>
     </md-card>
-    <md-snackbar :md-active.sync="userSaved">The therapist {{ name }} was added with success!</md-snackbar>
   </section>
 </template>
 <script>
@@ -45,21 +40,20 @@ export default {
     errorMessage: null
   }),
   methods: {
-    createTherapist() {
-      let uri = "http://localhost:4000/therapist/create";
+    loginTherapist() {
+      let uri = "http://localhost:4000/therapist/login";
       this.axios
         .post(uri, this.therapist)
         .then(response => {
-          this.userSaved = true;
-          this.name = this.therapist.name;
-          this.therapist = {};
-          this.error = false;
-          this.errorMessage = null;
+          if (response.data.success) {
+            console.log(response.data.user);
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("user", JSON.stringify(response.data.user));
+          }
         })
         .catch(err => {
           this.error = true;
-          this.errorMessage = err.response.data;
-          console.log(err);
+          this.errorMessage = err.response.data.message;
         });
     }
   }

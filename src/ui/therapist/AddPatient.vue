@@ -40,16 +40,21 @@ export default {
       patient: {}
     };
   },
+  mounted() {
+    this.user = JSON.parse(localStorage.getItem("user"));
+  },
   methods: {
     createPatient() {
       let uri = "http://localhost:4000/therapist/create_patient";
       this.axios
-        .post(uri, this.patient)
+        .post(uri, this.patient, {
+          headers: { "x-access-token": localStorage.getItem("token") }
+        })
         .then(response => {
           console.log(response);
         })
         .catch(err => {
-          console.log(err.response.data);
+          console.log(err);
         });
     }
   }

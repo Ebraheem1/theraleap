@@ -39,6 +39,13 @@ const Therapists = () => import("@/ui/therapist/AddTherapist.vue");
 const TherapistRoot = () => import("@/ui/therapist/TherapistRoot.vue");
 const TherapistTabs = () => import("@/ui/therapist/TherapistTabs.vue");
 const AddPatient = () => import("@/ui/therapist/AddPatient.vue");
+const TherapistLogin = () => import("@/ui/therapist/Login.vue");
+// const ViewPatient = () => import("@/ui/therapist/ViewPatient.vue");
+
+//Patient routes
+const PatientRoot = () => import("@/ui/patient/PatientRoot.vue");
+const PatientTabs = () => import("@/ui/patient/PatientTabs.vue");
+const PatientLogin = () => import("@/ui/patient/Login.vue");
 
 import App from "@/ui/App.vue";
 
@@ -170,6 +177,10 @@ export const RootRouter = new VueRouter({
             {
               component: AddPatient,
               path: "add_patient"
+            },
+            {
+              component: TherapistLogin,
+              path: "login_therapist"
             }
           ],
           components: {
@@ -178,6 +189,20 @@ export const RootRouter = new VueRouter({
           },
           path: "therapist",
           redirect: "/therapist/add"
+        },
+        {
+          children: [
+            {
+              component: PatientLogin,
+              path: "login_patient"
+            }
+          ],
+          components: {
+            main: PatientRoot,
+            tabs: PatientTabs
+          },
+          path: "patient",
+          redirect: "/patient/login_patient"
         }
       ],
       component: App,
