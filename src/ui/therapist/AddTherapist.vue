@@ -57,9 +57,10 @@ export default {
           this.errorMessage = null;
         })
         .catch(err => {
-          this.error = true;
-          this.errorMessage = err.response.data;
-          console.log(err);
+          if (err) {
+            this.error = true;
+            this.errorMessage = err.data.message ? err.data.message : err;
+          }
         });
     }
   }

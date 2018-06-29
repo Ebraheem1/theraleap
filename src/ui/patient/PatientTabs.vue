@@ -1,6 +1,7 @@
 <template>
     <md-tabs class="md-primary" md-sync-route>
         <md-tab id="tab-home" md-label="Patient Login" to="/patient/patient_login"></md-tab>
+        <md-tab id="tab-posts" md-label="Logout" to="/logout"></md-tab>
     </md-tabs>
 </template>
 <script lang="ts">

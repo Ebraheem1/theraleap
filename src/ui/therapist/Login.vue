@@ -31,6 +31,8 @@
   </section>
 </template>
 <script>
+import * as user from "@/state/modules/user";
+
 export default {
   data: () => ({
     therapist: {},
@@ -46,9 +48,9 @@ export default {
         .post(uri, this.therapist)
         .then(response => {
           if (response.data.success) {
-            console.log(response.data.user);
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
+            user.setUserType(this.$store, response.data.user.type);
           }
         })
         .catch(err => {

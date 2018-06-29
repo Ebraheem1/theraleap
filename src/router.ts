@@ -47,6 +47,9 @@ const PatientRoot = () => import("@/ui/patient/PatientRoot.vue");
 const PatientTabs = () => import("@/ui/patient/PatientTabs.vue");
 const PatientLogin = () => import("@/ui/patient/Login.vue");
 
+//Logout route
+const Logout = () => import("@/ui/Logout.vue");
+
 import App from "@/ui/App.vue";
 
 export const RootRouter = new VueRouter({
@@ -57,6 +60,7 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: DeviceLog,
+              name: "device-log",
               path: "devicelog"
             },
             {
@@ -188,7 +192,7 @@ export const RootRouter = new VueRouter({
             tabs: TherapistTabs
           },
           path: "therapist",
-          redirect: "/therapist/add"
+          redirect: "/therapist/login_therapist"
         },
         {
           children: [
@@ -203,6 +207,10 @@ export const RootRouter = new VueRouter({
           },
           path: "patient",
           redirect: "/patient/login_patient"
+        },
+        {
+          component: Logout,
+          path: "logout"
         }
       ],
       component: App,

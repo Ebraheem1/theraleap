@@ -103,6 +103,7 @@ import OfflineIndicator from "@/ui/utils/OfflineIndicator.vue";
 
 import * as device from "@/state/modules/device";
 import * as record from "@/state/modules/record";
+import * as user from "@/state/modules/user";
 
 /**
  * Main Vue.JS App

@@ -9,6 +9,8 @@ import { graphics, GraphicsState } from "@/state/modules/graphics";
 import { record, RecordState } from "@/state/modules/record";
 import { classifier, ClassifierState } from "./modules/classifiers";
 import { persist, PersistorState } from "./modules/persistor";
+//To Place the User Store within all the stores
+import { user, UserState } from "./modules/user";
 import { preprocessors, PreProcessorsState } from "./modules/preprocessors";
 
 import { DeviceDriver, DeviceFacade } from "devices";
@@ -28,6 +30,7 @@ export interface RootState {
   persist: PersistorState;
   classifiers: ClassifierState;
   preprocessors: PreProcessorsState;
+  user: UserState;
 }
 
 export interface IStoreFactory {
@@ -65,7 +68,8 @@ export class StoreFactory implements IStoreFactory {
           record,
           persist,
           preprocessors,
-          classifier
+          classifier,
+          user
         },
         plugins: [
           deviceConnector(this.driver),
