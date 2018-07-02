@@ -46,6 +46,7 @@ export default {
   methods: {
     createPatient() {
       let uri = "http://localhost:4000/therapist/create_patient";
+
       this.axios
         .post(uri, this.patient, {
           headers: { "x-access-token": localStorage.getItem("token") }

@@ -44,6 +44,7 @@ export default {
   methods: {
     loginTherapist() {
       let uri = "http://localhost:4000/therapist/login";
+      console.log(this.therapist);
       this.axios
         .post(uri, this.therapist)
         .then(response => {
