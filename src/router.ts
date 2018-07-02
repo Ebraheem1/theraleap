@@ -161,6 +161,7 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: Games,
+              name: "game-list",
               path: "list"
             },
             {

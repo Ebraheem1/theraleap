@@ -4,7 +4,7 @@
             <h1>{{ headerText[0] }}</h1>
             <h2>{{ headerText[1] }}</h2>
             <span>
-                <play-button :name="'Retry'" @click="$router.push(`/games/play/${gameIdentifier}`)"></play-button>
+                <play-button :name="'Retry'" @click="$router.push(`/games`)"></play-button>
             </span>
         </section>
         <md-divider />
@@ -37,6 +37,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import axios from "axios";
 import { Inject, Component, Prop, Watch } from "vue-property-decorator";
 import * as d3 from "d3";
 import { GenericHandTrackingData } from "@/devices";
@@ -173,41 +174,41 @@ export default class GameOver extends Vue {
   }
 
   public mounted() {
-    if (this.statistics && this.data === undefined) {
-      const p: { data: number; index: number }[] = [];
-      this.statistics.forEach((d: LeapHandTrackingData, idx) => {
-        const pointable = getPointableWithId(d.data.pointables, 0);
-        if (pointable !== undefined) {
-          p.push({
-            data: pointable.tipPosition[0],
-            index: idx
-          });
-        }
-      });
-      const x = d3.scaleLinear().range([0, 500]);
-      const y = d3.scaleLinear().range([300, 0]);
-      const thumbPosLine = d3
-        .line<{ data: number; index: number }>()
-        .x(d => x(d.index))
-        .y(d => y(d.data));
+    var curr = localStorage.getItem("user");
+    if (curr != null && this.data !== undefined) {
+      var json = JSON.parse(curr);
+      var stats: any = {};
 
-      x.domain([0, p.length]);
-      y.domain([-200, 200]);
-      this.line = thumbPosLine(p);
+      stats.winning_flag = this.data[1];
+      stats.max_time = this.data[2];
+      stats.patient_id = json.id;
+      stats.therapist_id = json.therapist_id;
+      if (this.data[0] == "TI-LEAP") {
+        stats.classifier_name = "ThumbIndexClassifier";
+        stats.scatter_TI = this.data[3].slice(1);
+        stats.histogram_TI = this.histogramColumns;
+      } else if (this.data[0] == "WA-LEAP") {
+        stats.classifier_name = "WristAngleClassifier";
+        stats.max_angle_upwards = this.data[3];
+        stats.max_angle_downwards = this.data[4];
+        stats.scatter_WA = this.data[5];
+      }
 
-      const svg = d3.select(this.$refs.svg as d3.BaseType);
+      console.log(stats);
 
-      svg
-        .append("g")
-        .attr("transform", "translate(30, 0)")
-        // @ts-ignore
-        .call(d3.axisLeft(y));
-
-      svg
-        .append("g")
-        .attr("transform", "translate(30, 220)")
-        // @ts-ignore
-        .call(d3.axisBottom(x));
+      let uri = "http://localhost:4000/statistic/create";
+      axios
+        .post(uri, stats)
+        .then(response => {
+          if (response.data.success) {
+            console.log("statistics saved");
+          }
+        })
+        .catch(err => {
+          // this.error = true;
+          console.log(err);
+          if (err.response.data) console.log(err.response.data.message);
+        });
     }
   }
 }

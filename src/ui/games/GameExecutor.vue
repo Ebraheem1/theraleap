@@ -24,14 +24,19 @@ import GameLoadingSpinner from "@/ui/games/GameLoadingSpinner.vue";
 import InGameControls from "@/ui/games/InGameControls.vue";
 import { GameResolveMapping } from "@/games/resolver";
 import { Game, GameConfiguration } from "@/games/types";
+import {
+  getClassifiers,
+  modifyClassifier,
+  disableAllClassifiers,
+  getActiveClassifier
+} from "@/state/modules/classifiers";
 
 @Component({
   components: {
     GameLoadError,
     GameLoadingSpinner,
     InGameControls
-  },
-  beforeRouteLeave: GameExecutor.prototype.beforeRouteLeave
+  }
 })
 export default class GameExecutor extends Vue {
   @Prop({ type: String, required: true })
@@ -64,10 +69,16 @@ export default class GameExecutor extends Vue {
   }
 
   public async mounted() {
-    this.cleanGameElement();
-    await this.loadGame();
-    this.initializeKeyListener();
-    this.setupStreams();
+    if (getActiveClassifier(this.$store) !== undefined) {
+      this.cleanGameElement();
+      await this.loadGame();
+      this.initializeKeyListener();
+      this.setupStreams();
+    } else {
+      this.$router.push({
+        name: "game-list"
+      });
+    }
   }
 
   public async beforeRouteLeave(to: any, from: any, next: any) {

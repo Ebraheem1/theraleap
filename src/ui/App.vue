@@ -65,21 +65,21 @@
         </md-icon>
         <span class="md-list-item-text">Classifier</span>
       </md-list-item>
-      <md-list-item to="/games" :class="{active: activeNavItem == 5}" @click="setActiveNavItem(5)">
+      <md-list-item to="/games" :class="{active: activeNavItem == 5}" @click="setActiveNavItem(5)" v-if="userType == '2'">
         <md-icon>games
           <md-tooltip md-direction="right">Games</md-tooltip>
         </md-icon>
         <span class="md-list-item-text">Games</span>
       </md-list-item>
 
-      <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)">
+      <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)" v-if="userType == '0' || userType == '1'">
         <md-icon>perm_identity
           <md-tooltip md-direction="right">Therapist</md-tooltip>
         </md-icon>
         <span class="md-list-item-text">Therapist</span>
       </md-list-item>
 
-      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)">
+      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)" v-if="userType == '0' || userType == '2'">
         <md-icon>perm_identity
           <md-tooltip md-direction="right">Patient</md-tooltip>
         </md-icon>
@@ -152,6 +152,15 @@ export default class App extends Vue {
 
   get deviceDataTransferRate(): number | undefined {
     return device.getDeviceDataTransferRate(this.$store);
+  }
+
+  get userType(): string {
+    var curr = localStorage.getItem("user");
+    if (curr) {
+      var json = JSON.parse(curr);
+      user.setUserType(this.$store, json.type);
+    }
+    return user.getUserType(this.$store);
   }
 }
 </script>

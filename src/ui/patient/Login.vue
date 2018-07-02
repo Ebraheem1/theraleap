@@ -24,13 +24,15 @@
       </md-card-content>
       <md-card-actions>
         <md-button
-          @click="loginTherapist"
+          @click="loginPatient"
           class="md-raised md-primary">Login</md-button>
       </md-card-actions>
     </md-card>
   </section>
 </template>
 <script>
+import * as user from "@/state/modules/user";
+
 export default {
   data: () => ({
     patient: {},
@@ -40,20 +42,21 @@ export default {
     errorMessage: null
   }),
   methods: {
-    loginTherapist() {
+    loginPatient() {
       let uri = "http://localhost:4000/patient/login";
       this.axios
         .post(uri, this.patient)
         .then(response => {
           if (response.data.success) {
-            console.log(response.data.user);
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
+            user.setUserType(this.$store, response.data.user.type);
           }
         })
         .catch(err => {
           this.error = true;
-          this.errorMessage = err.response.data.message;
+          console.log(err);
+          if (err.response.data) this.errorMessage = err.response.data.message;
         });
     }
   }
