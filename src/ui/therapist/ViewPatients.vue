@@ -45,12 +45,8 @@ export default {
           break;
         }
       }
-      this.$router.push({
-        name: "patient-data",
-        params: {
-          patient: clickedPatient
-        }
-      });
+      if (clickedPatient.id)
+        this.$router.push(`/therapist/patient_data/${clickedPatient.id}`);
     }
   }
 };

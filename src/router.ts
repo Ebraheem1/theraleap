@@ -250,8 +250,7 @@ export const RootRouter = new VueRouter({
             },
             {
               component: PatientDetails,
-              name: "patient-data",
-              path: "/patient_data",
+              path: "patient_data/:id",
               props: true,
               beforeEnter: loginTherapistRequired
             },

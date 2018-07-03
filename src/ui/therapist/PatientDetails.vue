@@ -106,11 +106,11 @@ export default {
     "scatter-plot": ScatterPlot,
     histogram: Histogram
   },
-  props: ["patient"],
+  props: ["id"],
   computed: {
-    getPatient: function() {
-      if (this.patient) {
-        return this.patient;
+    getPatientId: function() {
+      if (this.id) {
+        return this.id;
       }
       return undefined;
     }
@@ -125,13 +125,9 @@ export default {
     };
   },
   created: function() {
-    this.currentPatient = this.getPatient;
-    if (this.currentPatient === undefined) {
-      this.$router.push({
-        name: "view-all"
-      });
-    }
-    this.getStatistics();
+    var uri =
+      "http://localhost:4000/therapist/patient-info/" + this.getPatientId;
+    this.getPatientInfo(uri);
   },
   methods: {
     handTypeChange(val) {
@@ -143,13 +139,30 @@ export default {
     classifierChange(val) {
       this.currentPatient.enabled_gesture = val;
     },
+    getPatientInfo(uri) {
+      this.axios
+        .get(uri, {
+          headers: { "x-access-token": localStorage.getItem("token") }
+        })
+        .then(response => {
+          if (response.data.success) {
+            this.currentPatient = response.data.patient;
+            this.getStatistics();
+          }
+        })
+        .catch(err => {
+          this.$router.push({
+            name: "view-all"
+          });
+        });
+    },
     getStatistics() {
       if (!this.currentPatient.enabled_gesture) {
         return;
       }
       let uri =
         "http://localhost:4000/therapist/get-statistics/" +
-        this.currentPatient.id +
+        this.currentPatient._id +
         "/" +
         this.currentPatient.enabled_gesture;
       this.axios
@@ -201,7 +214,7 @@ export default {
         ],
         WA_handType: this.currentPatient.WA_handType,
         WA_difficulty: this.currentPatient.WA_difficulty,
-        id: this.currentPatient.id
+        id: this.currentPatient._id
       };
       let uri = "http://localhost:4000/therapist/edit-patient";
       this.axios

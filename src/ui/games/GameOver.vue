@@ -191,7 +191,7 @@ export default class GameOver extends Vue {
         stats.classifier_name = "WristAngleClassifier";
         stats.max_angle_upwards = this.data[3];
         stats.max_angle_downwards = this.data[4];
-        stats.scatter_WA = this.data[5];
+        stats.scatter_WA = this.data[5].slice(1);
       }
 
       console.log(stats);
