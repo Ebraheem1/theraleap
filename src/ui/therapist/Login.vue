@@ -36,7 +36,6 @@ import * as user from "@/state/modules/user";
 export default {
   data: () => ({
     therapist: {},
-    userSaved: false,
     name: null,
     error: false,
     errorMessage: null
@@ -44,7 +43,6 @@ export default {
   methods: {
     loginTherapist() {
       let uri = "http://localhost:4000/therapist/login";
-      console.log(this.therapist);
       this.axios
         .post(uri, this.therapist)
         .then(response => {
@@ -52,9 +50,7 @@ export default {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
             user.setUserType(this.$store, response.data.user.type);
-            this.$router.push({
-              name: "device-log"
-            });
+            this.$router.push("/therapist/view_patients");
           }
         })
         .catch(err => {
