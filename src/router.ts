@@ -65,6 +65,42 @@ const loginTherapistRequired = (to: any, from: any, next: any) => {
     next({ path: "/therapist/login_therapist" });
   }
 };
+const loginPatientRequired = (to: any, from: any, next: any) => {
+  var user: any | null = localStorage.getItem("user");
+  if (user == null) {
+    next({ path: "/patient/login_patient" });
+  }
+  user = JSON.parse(user);
+  if (user && user.type == "2") {
+    next();
+  } else {
+    next({ path: "/patient/login_patient" });
+  }
+};
+const generalLogin = (to: any, from: any, next: any) => {
+  var user: any | null = localStorage.getItem("user");
+  if (user == null) {
+    next({ path: "/debug/devicelog" });
+  } else {
+    next();
+  }
+};
+
+const loginNotRequired = (to: any, from: any, next: any) => {
+  var user: any | null = localStorage.getItem("user");
+  if (user == null) {
+    next();
+  }
+  user = JSON.parse(user);
+  if (user && user.type == "1") {
+    next({ path: "/therapist/add" });
+  } else if (user && user.type == "2") {
+    next({ path: "/games" });
+  } else {
+    next({ path: "/debug/devicelog" });
+  }
+};
+
 export const RootRouter = new VueRouter({
   routes: [
     {
@@ -163,7 +199,8 @@ export const RootRouter = new VueRouter({
             {
               component: Games,
               name: "game-list",
-              path: "list"
+              path: "list",
+              beforeEnter: loginPatientRequired
             },
             {
               component: GameSettings,
@@ -172,13 +209,15 @@ export const RootRouter = new VueRouter({
             {
               component: GameExecutor,
               path: "play/:gameIdentifier",
-              props: true
+              props: true,
+              beforeEnter: loginPatientRequired
             },
             {
               component: GameOver,
               name: "game-over",
               path: "game-over",
-              props: true
+              props: true,
+              beforeEnter: loginPatientRequired
             }
           ],
           components: {
@@ -192,26 +231,31 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: Therapists,
-              path: "add"
+              path: "add",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: AddPatient,
-              path: "add_patient"
+              path: "add_patient",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: TherapistViewPatients,
               name: "view-all",
-              path: "view_patients"
+              path: "view_patients",
+              beforeEnter: loginTherapistRequired
             },
             {
               component: PatientDetails,
               name: "patient-data",
               path: "/patient",
-              props: true
+              props: true,
+              beforeEnter: loginTherapistRequired
             },
             {
               component: TherapistLogin,
-              path: "login_therapist"
+              path: "login_therapist",
+              beforeEnter: loginNotRequired
             }
           ],
           components: {
@@ -225,7 +269,8 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: PatientLogin,
-              path: "login_patient"
+              path: "login_patient",
+              beforeEnter: loginNotRequired
             }
           ],
           components: {
@@ -240,7 +285,8 @@ export const RootRouter = new VueRouter({
           components: {
             main: Logout
           },
-          path: "logout"
+          path: "logout",
+          beforeEnter: generalLogin
         }
       ],
       component: App,
