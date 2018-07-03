@@ -1,8 +1,5 @@
 <template>
   <md-card>
-    <md-card-media>
-    </md-card-media>
-
     <md-card-header>
       <div class="md-title">Super Mario</div>
       <div class="md-subhead">Help Mario to save Princess Toadstool from Bowser by reaching the destination!</div>

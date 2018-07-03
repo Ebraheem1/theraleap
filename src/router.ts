@@ -40,7 +40,8 @@ const TherapistRoot = () => import("@/ui/therapist/TherapistRoot.vue");
 const TherapistTabs = () => import("@/ui/therapist/TherapistTabs.vue");
 const AddPatient = () => import("@/ui/therapist/AddPatient.vue");
 const TherapistLogin = () => import("@/ui/therapist/Login.vue");
-// const ViewPatient = () => import("@/ui/therapist/ViewPatient.vue");
+const TherapistViewPatients = () => import("@/ui/therapist/ViewPatients.vue");
+const PatientDetails = () => import("@/ui/therapist/PatientDetails.vue");
 
 //Patient routes
 const PatientRoot = () => import("@/ui/patient/PatientRoot.vue");
@@ -191,13 +192,22 @@ export const RootRouter = new VueRouter({
           children: [
             {
               component: Therapists,
-              path: "add",
-              beforeEnter: loginTherapistRequired
+              path: "add"
             },
             {
               component: AddPatient,
-              path: "add_patient",
-              beforeEnter: loginTherapistRequired
+              path: "add_patient"
+            },
+            {
+              component: TherapistViewPatients,
+              name: "view-all",
+              path: "view_patients"
+            },
+            {
+              component: PatientDetails,
+              name: "patient-data",
+              path: "/patient",
+              props: true
             },
             {
               component: TherapistLogin,
