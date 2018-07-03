@@ -50,6 +50,7 @@ export default {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
             user.setUserType(this.$store, response.data.user.type);
+            this.$forceUpdate();
             this.$router.push("/therapist/view_patients");
           }
         })

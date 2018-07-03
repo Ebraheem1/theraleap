@@ -48,6 +48,10 @@ const PatientRoot = () => import("@/ui/patient/PatientRoot.vue");
 const PatientTabs = () => import("@/ui/patient/PatientTabs.vue");
 const PatientLogin = () => import("@/ui/patient/Login.vue");
 
+//Login routes
+const LoginRoot = () => import("@/ui/login/LoginRoot.vue");
+const LoginTabs = () => import("@/ui/login/LoginTabs.vue");
+
 //Logout route
 const Logout = () => import("@/ui/Logout.vue");
 
@@ -56,27 +60,27 @@ import App from "@/ui/App.vue";
 const loginTherapistRequired = (to: any, from: any, next: any) => {
   var user: any | null = localStorage.getItem("user");
   if (user == null) {
-    next({ path: "/therapist/login_therapist" });
+    next({ path: "/login/login_therapist" });
     return;
   }
   user = JSON.parse(user);
   if (user && user.type == "1") {
     next();
   } else {
-    next({ path: "/therapist/login_therapist" });
+    next({ path: "/login/login_therapist" });
   }
 };
 const loginPatientRequired = (to: any, from: any, next: any) => {
   var user: any | null = localStorage.getItem("user");
   if (user == null) {
-    next({ path: "/patient/login_patient" });
+    next({ path: "/login/login_patient" });
     return;
   }
   user = JSON.parse(user);
   if (user && user.type == "2") {
     next();
   } else {
-    next({ path: "/patient/login_patient" });
+    next({ path: "/login/login_patient" });
   }
 };
 const generalLogin = (to: any, from: any, next: any) => {
@@ -253,6 +257,21 @@ export const RootRouter = new VueRouter({
               path: "patient_data/:id",
               props: true,
               beforeEnter: loginTherapistRequired
+            }
+          ],
+          components: {
+            main: TherapistRoot,
+            tabs: TherapistTabs
+          },
+          path: "therapist",
+          redirect: "/therapist/view_patients"
+        },
+        {
+          children: [
+            {
+              component: PatientLogin,
+              path: "login_patient",
+              beforeEnter: loginNotRequired
             },
             {
               component: TherapistLogin,
@@ -261,26 +280,11 @@ export const RootRouter = new VueRouter({
             }
           ],
           components: {
-            main: TherapistRoot,
-            tabs: TherapistTabs
+            main: LoginRoot,
+            tabs: LoginTabs
           },
-          path: "therapist",
-          redirect: "/therapist/login_therapist"
-        },
-        {
-          children: [
-            {
-              component: PatientLogin,
-              path: "login_patient",
-              beforeEnter: loginNotRequired
-            }
-          ],
-          components: {
-            main: PatientRoot,
-            tabs: PatientTabs
-          },
-          path: "patient",
-          redirect: "/patient/login_patient"
+          path: "login",
+          redirect: "/login/login_patient"
         },
         {
           children: [],

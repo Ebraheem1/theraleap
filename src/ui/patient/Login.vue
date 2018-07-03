@@ -36,7 +36,6 @@ import * as user from "@/state/modules/user";
 export default {
   data: () => ({
     patient: {},
-    userSaved: false,
     name: null,
     error: false,
     errorMessage: null

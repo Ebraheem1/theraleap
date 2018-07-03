@@ -59,7 +59,7 @@
         <span class="md-list-item-text">Data Processing</span>
       </md-list-item>
 
-      <md-list-item to="/classify" :class="{active: activeNavItem == 4}" @click="setActiveNavItem(4)">
+      <md-list-item to="/classify" :class="{active: activeNavItem == 4}" @click="setActiveNavItem(4)" v-if="userType == '1'">
         <md-icon>blur_on
           <md-tooltip md-direction="right">Classifier</md-tooltip>
         </md-icon>
@@ -72,19 +72,20 @@
         <span class="md-list-item-text">Games</span>
       </md-list-item>
 
-      <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)" v-if="userType == '0' || userType == '1'">
+      <md-list-item to="/therapist" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)" v-if="userType == '1'">
         <md-icon>perm_identity
           <md-tooltip md-direction="right">Therapist</md-tooltip>
         </md-icon>
         <span class="md-list-item-text">Therapist</span>
       </md-list-item>
 
-      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)" v-if="userType == '0'">
-        <md-icon>perm_identity
-          <md-tooltip md-direction="right">Patient</md-tooltip>
+      <md-list-item to="/login" :class="{active: activeNavItem == 6}" @click="setActiveNavItem(6)" v-if="userType == '0'">
+        <md-icon>lock
+          <md-tooltip md-direction="right">Login</md-tooltip>
         </md-icon>
-        <span class="md-list-item-text">Patient</span>
+        <span class="md-list-item-text">Login</span>
       </md-list-item>
+
     </md-list>
   </md-app-drawer>
   <md-app-content>

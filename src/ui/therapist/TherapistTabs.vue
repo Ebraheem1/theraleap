@@ -6,8 +6,6 @@
         v-if="userType == '1'"></md-tab>
         <md-tab id="tab-viewpatient" md-label="Your Patients" to="/therapist/view_patients"
         v-if="userType == '1'"></md-tab>
-        <md-tab id="tab-login" md-label="Therapist Login" to="/therapist/login_therapist"
-        v-if="userType == '0'"></md-tab>
         <md-tab id="tab-logout" md-label="Logout" to="/logout"
         v-if="userType == '1'"></md-tab>
     </md-tabs>
@@ -22,6 +20,7 @@ import { Inject, Component } from "vue-property-decorator";
 })
 export default class TherapistTabs extends Vue {
   get userType(): string {
+    console.log(user.getUserType(this.$store));
     return user.getUserType(this.$store);
   }
 }

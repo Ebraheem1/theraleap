@@ -23,21 +23,21 @@
             <md-field>
               <label v-if="currentPatient.TI_threshold">{{ currentPatient.TI_threshold }}</label>
               <label v-else>NA</label>
-              <md-input v-model="currentPatient.TI_threshold"></md-input>
+              <md-input type="number" v-model="currentPatient.TI_threshold"></md-input>
               <span class="md-helper-text">Thumb Index Threshold Angle</span>
             </md-field>
             <md-field>
               <label v-if="(currentPatient.WA_thresholds) && (currentPatient.WA_thresholds.length > 0)">
                   {{ currentPatient.WA_thresholds[0] }}</label>
               <label v-else>NA</label>
-              <md-input v-model="currentPatient.up"></md-input>
+              <md-input type="number" v-model="currentPatient.up"></md-input>
               <span class="md-helper-text">Wrist Angle Upward Threshold</span>
             </md-field>
             <md-field>
               <label v-if="currentPatient.WA_thresholds && currentPatient.WA_thresholds.length > 0">
                   {{ currentPatient.WA_thresholds[1] }}</label>
               <label v-else>NA</label>
-              <md-input v-model="currentPatient.down"></md-input>
+              <md-input type="number" v-model="currentPatient.down"></md-input>
               <span class="md-helper-text">Wrist Angle Downward Threshold</span>
             </md-field>
             <br>
