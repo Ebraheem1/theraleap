@@ -79,7 +79,7 @@
         <span class="md-list-item-text">Therapist</span>
       </md-list-item>
 
-      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)" v-if="userType == '0' || userType == '2'">
+      <md-list-item to="/patient" :class="{active: activeNavItem == 7}" @click="setActiveNavItem(7)" v-if="userType == '0'">
         <md-icon>perm_identity
           <md-tooltip md-direction="right">Patient</md-tooltip>
         </md-icon>

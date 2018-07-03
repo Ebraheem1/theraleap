@@ -198,7 +198,9 @@ export default class GameOver extends Vue {
 
       let uri = "http://localhost:4000/statistic/create";
       axios
-        .post(uri, stats)
+        .post(uri, stats, {
+          headers: { "x-access-token": localStorage.getItem("token") }
+        })
         .then(response => {
           if (response.data.success) {
             console.log("statistics saved");

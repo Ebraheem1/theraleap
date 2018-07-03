@@ -206,7 +206,7 @@ export const RootRouter = new VueRouter({
             {
               component: PatientDetails,
               name: "patient-data",
-              path: "/patient",
+              path: "/patient_data",
               props: true
             },
             {

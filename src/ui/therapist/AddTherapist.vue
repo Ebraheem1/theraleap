@@ -48,7 +48,9 @@ export default {
     createTherapist() {
       let uri = "http://localhost:4000/therapist/create";
       this.axios
-        .post(uri, this.therapist)
+        .post(uri, this.therapist, {
+          headers: { "x-access-token": localStorage.getItem("token") }
+        })
         .then(response => {
           this.userSaved = true;
           this.name = this.therapist.name;

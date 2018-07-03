@@ -40,17 +40,20 @@
               <md-input v-model="currentPatient.down"></md-input>
               <span class="md-helper-text">Wrist Angle Downward Threshold</span>
             </md-field>
+            <br>
             <div>
                 <div class="md-subhead">Hand Type</div>
                 <md-radio v-model="currentPatient.WA_handType" @change="handTypeChange" value="left">Left</md-radio>
                 <md-radio v-model="currentPatient.WA_handType" @change="handTypeChange" value="right">Right</md-radio>
             </div>
+            <br>
             <div>
                 <div class="md-subhead">Difficulty Level in WristAngle Classifier</div>
                 <md-radio v-model="currentPatient.WA_difficulty" @change="difficultyChange" value="easy">Easy</md-radio>
                 <md-radio v-model="currentPatient.WA_difficulty" @change="difficultyChange" value="medium">Medium</md-radio>
                 <md-radio v-model="currentPatient.WA_difficulty" @change="difficultyChange" value="hard">Hard</md-radio>
             </div>
+            <br>
             <div>
                 <div class="md-subhead">Difficulty Level in WristAngle Classifier</div>
                 <md-radio v-model="currentPatient.enabled_gesture" @change="classifierChange" value="WristAngleClassifier">Wrist Angle</md-radio>
@@ -65,17 +68,29 @@
           class="md-raised md-primary">EDIT</md-button>
       </md-card-actions>
     </md-card>
+    <br>
     <md-snackbar :md-active.sync="editSaved">Modifications are saved!</md-snackbar>
     <!-- Here is the part of Statistics -->
    <section v-if="statisticsSection">
       <md-card v-for="graph in graphsArr" :key="graph._id">
-      <scatter-plot v-if="graph.identifier == 'TI-LEAP'" :columns="graph.scatter_TI"
-      :identifier="graph.identifier"></scatter-plot>
-      <histogram v-if="graph.identifier == 'TI-LEAP'"
-        :columns="graph.histogram_TI"
-        :identifier="graph.identifier"></histogram>
-      <scatter-plot v-if="graph.identifier == 'WA-LEAP'" :columns="graph.scatter_WA"
-      :identifier="graph.identifier"></scatter-plot>
+        <br>
+        <section v-if="graph.createdAt !== undefined" class="highscore">
+          {{ graph.winning_flag? "WON" : "LOST" }}</s-code>
+        </section>
+        <section v-if="graph.createdAt !== undefined" class="highscore">
+            Date: <s-code>{{ formatDate(graph.createdAt) }}</s-code>
+        </section>
+        <section v-if="graph.max_time" class="highscore">
+            Maximum time to reach Threshold: <s-code>{{ graph.max_time.toString().padStart(5, '0') }}</s-code> sec(s).
+        </section>
+        <br />
+        <scatter-plot v-if="graph.identifier == 'TI-LEAP'" :columns="graph.scatter_TI"
+        :identifier="graph.identifier"></scatter-plot>
+        <histogram v-if="graph.identifier == 'TI-LEAP'"
+          :columns="graph.histogram_TI"
+          :identifier="graph.identifier"></histogram>
+        <scatter-plot v-if="graph.identifier == 'WA-LEAP'" :columns="graph.scatter_WA"
+        :identifier="graph.identifier"></scatter-plot>
       </md-card>
    </section>
   </section>
@@ -83,8 +98,11 @@
 <script>
 import ScatterPlot from "@/ui/games/statistics/ScatterPlot.vue";
 import Histogram from "@/ui/games/statistics/Histogram.vue";
+import Code from "@/ui/utils/Code.vue";
+
 export default {
   components: {
+    "s-code": Code,
     "scatter-plot": ScatterPlot,
     histogram: Histogram
   },
@@ -200,7 +218,67 @@ export default {
             console.log("err", err.message);
           }
         });
+    },
+    formatDate(d) {
+      var date = new Date(d);
+      var monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ];
+
+      var day = date.getDate();
+      var monthIndex = date.getMonth();
+      var year = date.getFullYear();
+      var hours = date.getHours();
+      var minutes = date.getMinutes();
+
+      return (
+        day +
+        " " +
+        monthNames[monthIndex] +
+        " " +
+        year +
+        ", " +
+        hours +
+        ":" +
+        minutes
+      );
     }
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.game-over-message {
+  text-align: center;
+  h1 {
+    font-size: 2em;
+    margin: 15px 0 0 0;
+  }
+  h2 {
+    font-size: 1em;
+  }
+}
+.md-divider {
+  margin-top: 25px;
+}
+.highscore {
+  margin: 25px;
+  font-size: larger;
+}
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+</style>
