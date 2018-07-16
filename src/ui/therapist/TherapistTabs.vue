@@ -20,7 +20,6 @@ import { Inject, Component } from "vue-property-decorator";
 })
 export default class TherapistTabs extends Vue {
   get userType(): string {
-    console.log(user.getUserType(this.$store));
     return user.getUserType(this.$store);
   }
 }

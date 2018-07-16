@@ -17,6 +17,7 @@
 
 </template>
 <script>
+import { clearUserSession } from "@/router";
 export default {
   data() {
     return {
@@ -29,7 +30,7 @@ export default {
   },
   methods: {
     fetchPatients() {
-      let uri = "http://localhost:4000/therapist/view-patients";
+      let uri = "http://localhost:4000/" + "therapist/view-patients";
       this.axios
         .get(uri, {
           headers: { "x-access-token": localStorage.getItem("token") }
@@ -43,6 +44,12 @@ export default {
           }
         })
         .catch(err => {
+          if (
+            err.response.status == 401 &&
+            err.response.data.message == "jwt expired"
+          ) {
+            clearUserSession(this);
+          }
           this.patients = [];
           this.message = err.response.data.message;
         });

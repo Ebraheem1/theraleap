@@ -32,7 +32,6 @@
 </template>
 <script>
 import * as user from "@/state/modules/user";
-
 export default {
   data: () => ({
     patient: {},
@@ -42,7 +41,7 @@ export default {
   }),
   methods: {
     loginPatient() {
-      let uri = "http://localhost:4000/patient/login";
+      let uri = "http://localhost:4000/" + "patient/login";
       this.axios
         .post(uri, this.patient)
         .then(response => {
@@ -57,7 +56,6 @@ export default {
         })
         .catch(err => {
           this.error = true;
-          console.log(err);
           if (err.response.data) this.errorMessage = err.response.data.message;
         });
     }

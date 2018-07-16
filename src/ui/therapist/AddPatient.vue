@@ -39,6 +39,7 @@
   </section>
 </template>
 <script>
+import { clearUserSession } from "@/router";
 export default {
   data() {
     return {
@@ -52,7 +53,7 @@ export default {
   },
   methods: {
     createPatient() {
-      let uri = "http://localhost:4000/therapist/create_patient";
+      let uri = "http://localhost:4000/" + "therapist/create_patient";
 
       this.axios
         .post(uri, this.patient, {
@@ -66,6 +67,12 @@ export default {
           }
         })
         .catch(err => {
+          if (
+            err.response.status == 401 &&
+            err.response.data.message == "jwt expired"
+          ) {
+            clearUserSession(this);
+          }
           var email = false;
           var password = false;
           if (err.response.data.errors) {

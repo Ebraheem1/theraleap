@@ -55,7 +55,7 @@
             </div>
             <br>
             <div>
-                <div class="md-subhead">Difficulty Level in WristAngle Classifier</div>
+                <div class="md-subhead">Classifier Enabled:</div>
                 <md-radio v-model="currentPatient.enabled_gesture" @change="classifierChange" value="WristAngleClassifier">Wrist Angle</md-radio>
                 <md-radio v-model="currentPatient.enabled_gesture" @change="classifierChange" value="ThumbIndexClassifier">Thumb Index</md-radio>            </div>
           </div>
@@ -75,7 +75,7 @@
       <md-card v-for="graph in graphsArr" :key="graph._id">
         <br>
         <section v-if="graph.createdAt !== undefined" class="highscore">
-          {{ graph.winning_flag? "WON" : "LOST" }}</s-code>
+          <s-code>{{ graph.winning_flag? "WON" : "LOST" }}</s-code>
         </section>
         <section v-if="graph.createdAt !== undefined" class="highscore">
             Date: <s-code>{{ formatDate(graph.createdAt) }}</s-code>
@@ -99,7 +99,7 @@
 import ScatterPlot from "@/ui/games/statistics/ScatterPlot.vue";
 import Histogram from "@/ui/games/statistics/Histogram.vue";
 import Code from "@/ui/utils/Code.vue";
-
+import { clearUserSession } from "@/router";
 export default {
   components: {
     "s-code": Code,
@@ -117,6 +117,7 @@ export default {
   },
   data() {
     return {
+      errorMessage: "",
       error: false,
       currentPatient: {},
       editSaved: false,
@@ -126,7 +127,7 @@ export default {
   },
   created: function() {
     var uri =
-      "http://localhost:4000/therapist/patient-info/" + this.getPatientId;
+      "http://localhost:4000/" + "therapist/patient-info/" + this.getPatientId;
     this.getPatientInfo(uri);
   },
   methods: {
@@ -151,6 +152,13 @@ export default {
           }
         })
         .catch(err => {
+          if (
+            err &&
+            err.response.status == 401 &&
+            err.response.data.message == "jwt expired"
+          ) {
+            clearUserSession(this);
+          }
           this.$router.push({
             name: "view-all"
           });
@@ -161,7 +169,8 @@ export default {
         return;
       }
       let uri =
-        "http://localhost:4000/therapist/get-statistics/" +
+        "http://localhost:4000/" +
+        "therapist/get-statistics/" +
         this.currentPatient._id +
         "/" +
         this.currentPatient.enabled_gesture;
@@ -171,7 +180,6 @@ export default {
         })
         .then(response => {
           if (response.data.success) {
-            console.log(response.data);
             if (response.data.graphs && response.data.graphs.length > 0) {
               var count = 0;
               this.statisticsSection = true;
@@ -193,7 +201,15 @@ export default {
           }
         })
         .catch(err => {
-          console.log("err: ", err.response);
+          if (err) {
+            if (
+              err &&
+              err.response.status == 401 &&
+              err.response.data.message == "jwt expired"
+            ) {
+              clearUserSession(this);
+            }
+          }
         });
     },
     editPatientData() {
@@ -216,7 +232,45 @@ export default {
         WA_difficulty: this.currentPatient.WA_difficulty,
         id: this.currentPatient._id
       };
-      let uri = "http://localhost:4000/therapist/edit-patient";
+      //some checks
+      if (
+        newPatient.enabled_gesture == "ThumbIndexClassifier" &&
+        isNaN(newPatient.TI_threshold)
+      ) {
+        this.error = true;
+        this.errorMessage = "Please, specify the thumb-index threshold value";
+        return;
+      } else if (newPatient.enabled_gesture == "WristAngleClassifier") {
+        if (
+          isNaN(newPatient.WA_thresholds[0]) ||
+          isNaN(newPatient.WA_thresholds[1])
+        ) {
+          this.error = true;
+          this.errorMessage =
+            "Please, specify both threshold values (upward and downward)";
+          return;
+        }
+        if (
+          isNaN(newPatient.WA_thresholds[0]) ||
+          isNaN(newPatient.WA_thresholds[1])
+        ) {
+          this.error = true;
+          this.errorMessage =
+            "Please, specify both threshold values (upward and downward)";
+          return;
+        }
+        if (!newPatient.WA_handType) {
+          this.error = true;
+          this.errorMessage = "Please, specify the hand type";
+          return;
+        }
+        if (!newPatient.WA_difficulty) {
+          this.error = true;
+          this.errorMessage = "Please, specify the difficulty level";
+          return;
+        }
+      }
+      let uri = "http://localhost:4000/" + "therapist/edit-patient";
       this.axios
         .post(uri, newPatient, {
           headers: { "x-access-token": localStorage.getItem("token") }
@@ -224,11 +278,18 @@ export default {
         .then(response => {
           if (response.data.success) {
             this.editSaved = true;
+            this.error = false;
+            this.errorMessage = "";
           }
         })
         .catch(err => {
           if (err) {
-            console.log("err", err.message);
+            if (
+              err.response.status == 401 &&
+              err.response.data.message == "jwt expired"
+            ) {
+              clearUserSession(this);
+            }
           }
         });
     },

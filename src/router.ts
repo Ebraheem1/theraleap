@@ -49,14 +49,19 @@ const PatientTabs = () => import("@/ui/patient/PatientTabs.vue");
 const PatientLogin = () => import("@/ui/patient/Login.vue");
 
 //Login routes
-const LoginRoot = () => import("@/ui/login/LoginRoot.vue");
-const LoginTabs = () => import("@/ui/login/LoginTabs.vue");
+const LoginRoot = () => import("@/ui/Login/LoginRoot.vue");
+const LoginTabs = () => import("@/ui/Login/LoginTabs.vue");
 
 //Logout route
 const Logout = () => import("@/ui/Logout.vue");
 
 import App from "@/ui/App.vue";
-
+import Vue from "@/ui/App.vue";
+//export const URL:string ="http://localhost:4000/";
+export const clearUserSession = (vue: Vue) => {
+  vue.$router.push("/logout");
+  return;
+};
 const loginTherapistRequired = (to: any, from: any, next: any) => {
   var user: any | null = localStorage.getItem("user");
   if (user == null) {

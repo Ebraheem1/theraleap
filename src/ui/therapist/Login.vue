@@ -32,7 +32,6 @@
 </template>
 <script>
 import * as user from "@/state/modules/user";
-
 export default {
   data: () => ({
     therapist: {},
@@ -42,7 +41,7 @@ export default {
   }),
   methods: {
     loginTherapist() {
-      let uri = "http://localhost:4000/therapist/login";
+      let uri = "http://localhost:4000/" + "therapist/login";
       this.axios
         .post(uri, this.therapist)
         .then(response => {
@@ -50,7 +49,6 @@ export default {
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user", JSON.stringify(response.data.user));
             user.setUserType(this.$store, response.data.user.type);
-            this.$forceUpdate();
             this.$router.push("/therapist/view_patients");
           }
         })

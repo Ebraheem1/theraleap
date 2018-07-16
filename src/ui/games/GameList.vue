@@ -92,32 +92,5 @@ export default class GameList extends Vue {
   get classifierConfigState() {
     return getClassifiers(this.$store);
   }
-  //end of enabling the patient's classifier
-
-  // get spaceShipValidClassifiers() {
-  //   if (classifier.getActiveClassifier(this.$store) !== undefined) {
-  //     var validClassifiers = [ThumbIndexClassifierId];
-  //     var activeClassifier = classifier.getActiveClassifier(this.$store)
-  //       .identifier;
-  //     console.log("space");
-  //     console.log("valid",validClassifiers);
-  //     console.log("active",activeClassifier);
-  //     return validClassifiers.includes(activeClassifier);
-  //   }
-  //   return true;
-  // }
-  //
-  // get superMarioValidClassifiers() {
-  //   if (classifier.getActiveClassifier(this.$store) !== undefined) {
-  //     var validClassifiers = [WristAngleClassifierId];
-  //     var activeClassifier = classifier.getActiveClassifier(this.$store)
-  //       .identifier;
-  //       console.log("wrist");
-  //       console.log("valid",validClassifiers);
-  //       console.log("active",activeClassifier);
-  //     return validClassifiers.includes(activeClassifier);
-  //   }
-  //   return true;
-  // }
 }
 </script>

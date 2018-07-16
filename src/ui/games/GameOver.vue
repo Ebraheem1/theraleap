@@ -3,6 +3,7 @@
         <section class="game-over-message">
             <h1>{{ headerText[0] }}</h1>
             <h2>{{ headerText[1] }}</h2>
+            <h3 v-if="error"> {{ errMessage }}</h3>
             <span>
                 <play-button :name="'Retry'" @click="$router.push(`/games`)"></play-button>
             </span>
@@ -83,6 +84,8 @@ export default class GameOver extends Vue {
 
   @Prop({ type: Array, required: false })
   public data: any[] | undefined;
+  public error: boolean = false;
+  public errMessage: string = "";
 
   get headerText() {
     if (this.data !== undefined && this.data[1]) {
@@ -194,22 +197,24 @@ export default class GameOver extends Vue {
         stats.scatter_WA = this.data[5].slice(1);
       }
 
-      console.log(stats);
-
-      let uri = "http://localhost:4000/statistic/create";
+      let uri = "http://localhost:4000/" + "statistic/create";
       axios
         .post(uri, stats, {
           headers: { "x-access-token": localStorage.getItem("token") }
         })
-        .then(response => {
-          if (response.data.success) {
-            console.log("statistics saved");
-          }
-        })
+        .then(response => {})
         .catch(err => {
-          // this.error = true;
-          console.log(err);
-          if (err.response.data) console.log(err.response.data.message);
+          if (
+            err &&
+            err.response.status == 401 &&
+            err.response.data.message == "jwt expired"
+          ) {
+            this.$router.push("/logout");
+            return;
+          } else if (err) {
+            this.error = true;
+            this.errMessage = err.response.data.message;
+          }
         });
     }
   }
